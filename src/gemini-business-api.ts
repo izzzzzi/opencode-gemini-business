@@ -304,14 +304,13 @@ export class GeminiBusinessAPI {
    */
   private mapModelId(model?: string): string {
     const modelMap: Record<string, string> = {
-      'gemini-2.5-pro': 'gemini-3-pro-preview',
-      'gemini-2.5-flash': 'gemini-3-flash-preview',
-      'gemini-2.0-pro': 'gemini-2-pro',
-      'gemini-1.5-pro': 'gemini-1.5-pro',
-      'gemini-1.5-flash': 'gemini-1.5-flash',
+      'gemini-2.5-pro': 'gemini-2.5-pro',
+      'gemini-2.5-flash': 'gemini-2.5-flash',
+      'gemini-3-pro': 'gemini-3-pro-preview',
+      'gemini-3-flash': 'gemini-3-flash-preview',
     };
 
-    return modelMap[model || 'gemini-2.5-pro'] || 'gemini-3-pro-preview';
+    return modelMap[model || 'gemini-2.5-flash'] || model || 'gemini-2.5-flash';
   }
 
   /**
@@ -368,10 +367,50 @@ export class GeminiBusinessAPI {
   ): AsyncIterable<ChatCompletionResponse> {
     const reader = response.body;
     let buffer = '';
+    let fullBody = '';
+    let emitted = false;
+
+    const toChunk = (content: string, finishReason: string | null = null): ChatCompletionResponse => ({
+      id: `chatcmpl-${Date.now()}`,
+      object: 'chat.completion.chunk',
+      created: Math.floor(Date.now() / 1000),
+      model,
+      choices: [
+        {
+          index: 0,
+          delta: {
+            role: 'assistant',
+            content,
+          },
+          finish_reason: finishReason,
+        },
+      ],
+    });
+
+    const extractText = (payload: any): string => {
+      // Direct text payloads
+      if (typeof payload?.text === 'string') return payload.text;
+      if (typeof payload?.content === 'string') return payload.content;
+
+      // Gemini Business stream chunk shape
+      const replies = payload?.streamAssistResponse?.answer?.replies;
+      if (!Array.isArray(replies)) return '';
+
+      let text = '';
+      for (const reply of replies) {
+        const content = reply?.groundedContent?.content;
+        if (content && content.text && !content.thought) {
+          text += content.text;
+        }
+      }
+      return text;
+    };
 
     try {
       for await (const chunk of reader) {
-        buffer += chunk.toString();
+        const chunkText = chunk.toString();
+        fullBody += chunkText;
+        buffer += chunkText;
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
 
@@ -385,30 +424,50 @@ export class GeminiBusinessAPI {
           if (trimmed.startsWith('data: ')) {
             try {
               const jsonStr = trimmed.slice(6);
+              if (jsonStr === '[DONE]') continue;
               const data = JSON.parse(jsonStr);
+              const content = extractText(data);
 
-              // Convert to OpenAI streaming format
-              yield {
-                id: `chatcmpl-${Date.now()}`,
-                object: 'chat.completion.chunk',
-                created: Math.floor(Date.now() / 1000),
-                model,
-                choices: [
-                  {
-                    index: 0,
-                    delta: {
-                      role: 'assistant',
-                      content: data.text || data.content || '',
-                    },
-                    finish_reason: data.finish_reason || null,
-                  },
-                ],
-              };
+              if (content) {
+                emitted = true;
+                yield toChunk(content, data.finish_reason || null);
+              }
             } catch (error) {
               console.error('Failed to parse SSE data:', error);
             }
+          } else {
+            // Some Gemini Business deployments return plain JSON lines instead of SSE.
+            try {
+              const data = JSON.parse(trimmed);
+              const content = extractText(data);
+              if (content) {
+                emitted = true;
+                yield toChunk(content, data.finish_reason || null);
+              }
+            } catch {
+              // Ignore non-JSON lines
+            }
           }
         }
+      }
+
+      // Fallback: if no stream chunks were emitted, parse full body as JSON and synthesize a stream chunk.
+      if (!emitted) {
+        try {
+          const parsed = JSON.parse(fullBody);
+          const completion = this.convertToOpenAIFormat(parsed, model);
+          const text = completion.choices?.[0]?.message?.content?.trim() || '';
+
+          if (text) {
+            yield toChunk(text, null);
+            yield toChunk('', 'stop');
+            return;
+          }
+        } catch {
+          // Ignore and throw below
+        }
+
+        throw new Error('Gemini Business stream contained no assistant content');
       }
     } catch (error) {
       console.error('Stream reading error:', error);

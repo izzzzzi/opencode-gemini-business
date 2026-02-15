@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { readFile, writeFile, mkdir } from 'fs/promises';
+import { homedir } from 'os';
+import { join } from 'path';
 import { AccountManager } from './src/account-manager.js';
 import { GeminiBusinessAPI } from './src/gemini-business-api.js';
 import { GeminiBusinessAccount } from './src/types.js';
@@ -81,6 +84,43 @@ async function addAccountCommand(manager: AccountManager, args: string[]) {
   console.log(`✅ Account added successfully! ID: ${id}`);
   console.log(`   Name: ${account.name}`);
   console.log(`   Team ID: ${account.team_id}`);
+
+  // Auto-create auth record so user doesn't need to run `opencode auth login`
+  await ensureAuthRecord();
+}
+
+/**
+ * Ensure auth record exists in ~/.local/share/opencode/auth.json
+ * so that OpenCode calls the plugin's loader() without manual `opencode auth login`.
+ */
+async function ensureAuthRecord() {
+  const authDir = join(homedir(), '.local', 'share', 'opencode');
+  const authPath = join(authDir, 'auth.json');
+
+  let authData: Record<string, unknown> = {};
+
+  try {
+    const raw = await readFile(authPath, 'utf-8');
+    authData = JSON.parse(raw);
+  } catch {
+    // File doesn't exist yet — we'll create it
+  }
+
+  if (authData['gemini-business']) {
+    return; // Already registered
+  }
+
+  authData['gemini-business'] = { type: 'api', key: 'unused' };
+
+  try {
+    await mkdir(authDir, { recursive: true });
+    await writeFile(authPath, JSON.stringify(authData, null, 2) + '\n', 'utf-8');
+    console.log(`\n✅ Auth record created in ${authPath}`);
+    console.log('   You can skip "opencode auth login" — the plugin is ready to use!');
+  } catch (error) {
+    console.warn(`\n⚠️  Could not auto-create auth record: ${error}`);
+    console.warn('   Run "opencode auth login" and select gemini-business manually.');
+  }
 }
 
 async function listAccountsCommand(manager: AccountManager) {

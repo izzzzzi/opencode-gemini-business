@@ -1,58 +1,32 @@
-# 🔄 opencode-gemini-business
+# opencode-gemini-business
 
-[🇬🇧 English](README.md) | [🇷🇺 **Русский**](README.ru.md)
+[English](README.md) | [Русский](README.ru.md)
 
 > Мульти-аккаунтный пул Gemini Business с интеллектуальной ротацией для OpenCode
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![npm version](https://img.shields.io/npm/v/opencode-gemini-business.svg)](https://www.npmjs.com/package/opencode-gemini-business)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
 ---
 
-## 📖 Обзор
+## Обзор
 
-**opencode-gemini-business** — это плагин для OpenCode, который обеспечивает ротацию между несколькими аккаунтами **Gemini Business API**, предоставляя автоматическое переключение при ошибках и балансировку нагрузки.
+**opencode-gemini-business** — плагин для OpenCode, который обеспечивает ротацию между несколькими аккаунтами **Gemini Business API** (`business.gemini.google`), предоставляя автоматическое переключение при ошибках и балансировку нагрузки.
 
-**⚠️ Важно**: Этот плагин использует **официальный Gemini Business API** (`business.gemini.google`), НЕ Google AI Studio.
+**Важно**: Плагин использует **Gemini Business / Enterprise API**, НЕ Google AI Studio.
 
-## ✨ Ключевые возможности
+## Поддерживаемые модели
 
-| Функция | Описание |
-|---------|----------|
-| 🔄 **Мульти-аккаунт ротация** | Автоматическое переключение между аккаунтами |
-| 🛡️ **Автоматический Failover** | Повтор неудачных запросов с другими аккаунтами |
-| 🔐 **Управление сессиями** | Встроенное управление XSRF токенами и сессиями |
-| ⚙️ **Гибкие стратегии** | Round-robin, least-used или случайная ротация |
-| 📊 **Мониторинг здоровья** | Отслеживание статистики и ошибок по аккаунтам |
-| 🚀 **Совместимость с OpenCode** | Бесшовная работа с системой провайдеров OpenCode |
-| 💾 **Постоянная конфигурация** | Безопасное хранение в `~/.config/opencode/gemini-business-accounts.json` |
+| Модель | Internal ID | Для чего |
+|--------|------------|----------|
+| `gemini-2.5-flash` | gemini-2.5-flash | Повседневные задачи, быстрые ответы |
+| `gemini-2.5-pro` | gemini-2.5-pro | Сложные рассуждения |
+| `gemini-3-flash` | gemini-3-flash-preview | Новое поколение, быстрая |
+| `gemini-3-pro` | gemini-3-pro-preview | Новое поколение, рассуждения |
 
-## 🤖 Поддерживаемые модели
+## Быстрый старт
 
-| Модель | Контекст | Макс. вывод | Лучше всего для |
-|--------|----------|-------------|-----------------|
-| `gemini-2.5-pro` | 1M токенов | 32K токенов | Сложные рассуждения, длинные документы |
-| `gemini-2.5-flash` | 1M токенов | 8K токенов | Быстрые ответы, простые задачи |
-| `gemini-2.0-pro` | 2M токенов | 32K токенов | Массивный контекст, глубокий анализ |
-| `gemini-1.5-pro` | 2M токенов | 8K токенов | Производственные нагрузки |
-| `gemini-1.5-flash` | 1M токенов | 8K токенов | Экономичная разработка |
-
-## 🔧 Установка и настройка
-
-### 📦 Установите плагин
-
-```bash
-npm install -g opencode-gemini-business
-```
-
-Или используйте с npx:
-
-```bash
-npx opencode-gemini-business@latest
-```
-
-### ⚙️ Настройте OpenCode
+### Шаг 1: Настроить OpenCode
 
 Добавьте в `~/.config/opencode/opencode.json`:
 
@@ -62,131 +36,52 @@ npx opencode-gemini-business@latest
   "plugin": ["opencode-gemini-business@latest"],
   "provider": {
     "gemini-business": {
+      "name": "Gemini Business",
+      "options": {
+        "baseURL": "https://business.gemini.google/v1",
+        "apiKey": "unused"
+      },
       "models": {
-        "gemini-2.5-pro": {
-          "name": "Gemini 2.5 Pro (Business)",
-          "limit": { "context": 1048576, "output": 32768 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "gemini-2.5-flash": {
-          "name": "Gemini 2.5 Flash (Business)",
-          "limit": { "context": 1048576, "output": 8192 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "gemini-2.0-pro": {
-          "name": "Gemini 2.0 Pro (Business)",
-          "limit": { "context": 2097152, "output": 32768 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "gemini-1.5-pro": {
-          "name": "Gemini 1.5 Pro (Business)",
-          "limit": { "context": 2097152, "output": 8192 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "gemini-1.5-flash": {
-          "name": "Gemini 1.5 Flash (Business)",
-          "limit": { "context": 1048576, "output": 8192 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        }
-      }
-    }
-  }
-}
-```
-
-**Или используйте короткие алиасы:**
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-gemini-business@latest"],
-  "provider": {
-    "gemini-business": {
-      "models": {
-        "gemini-2.5-pro": { "name": "Gemini 2.5 Pro" },
         "gemini-2.5-flash": { "name": "Gemini 2.5 Flash" },
-        "gemini-2.0-pro": { "name": "Gemini 2.0 Pro" },
-        "gemini-1.5-pro": { "name": "Gemini 1.5 Pro" },
-        "gemini-1.5-flash": { "name": "Gemini 1.5 Flash" }
+        "gemini-2.5-pro": { "name": "Gemini 2.5 Pro" },
+        "gemini-3-flash": { "name": "Gemini 3 Flash" },
+        "gemini-3-pro": { "name": "Gemini 3 Pro" }
       }
     }
   }
 }
 ```
 
-### 🔑 Извлечение учетных данных
+### Шаг 2: Добавить аккаунт Gemini Business
 
-#### Метод 1: Использование расширения браузера (РЕКОМЕНДУЕТСЯ) ⚡
+Установите CLI-инструмент:
 
-**Используйте расширение "Get cookies.txt LOCALLY"** для экспорта cookies, включая HttpOnly:
+```bash
+npm install -g opencode-gemini-business
+```
 
-1. **Установите расширение**:
-   - [Chrome Web Store: Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
-   - Это расширение может экспортировать **все cookies**, включая HttpOnly (которые недоступны JavaScript)
-
-2. **Войдите** в [Gemini Business](https://business.gemini.google)
-
-3. **Нажмите на иконку расширения** → Экспортируйте cookies для `business.gemini.google`
-
-4. **Найдите в экспортированном файле**:
-   - `__Secure-C_SES`: `CSE.xxx...`
-   - `__Host-C_OSES`: `COS.xxx...`
-
-5. **Получите csesidx из URL**:
-   - Посмотрите на URL в браузере: `?csesidx=1370433092`
-   - Скопируйте число после `csesidx=`
-
-6. **Получите team_id из URL**:
-   - Посмотрите на URL в браузере: `/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/`
-   - Скопируйте UUID после `/cid/` - это ваш `team_id`
-   - Формат: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-
-7. **Добавьте аккаунт** (см. ниже)
-
-#### Метод 2: Ручное извлечение через DevTools
-
-1. **Войдите** в [Gemini Business](https://business.gemini.google)
-
-2. **Получите team_id из URL**:
-   - Посмотрите на URL в браузере: `/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/`
-   - Скопируйте UUID после `/cid/` - это ваш `team_id`
-
-3. **Получите csesidx из URL**:
-   - Посмотрите на URL в браузере: `?csesidx=1370433092`
-   - Скопируйте число после `csesidx=`
-
-4. **Откройте DevTools** (F12) → вкладка **Application** → **Cookies** → `https://business.gemini.google`
-
-5. **Скопируйте cookies**:
-   - Найдите `__Secure-C_SES` → скопируйте значение
-   - Найдите `__Host-C_OSES` → скопируйте значение
-
-6. **Добавьте аккаунт**:
+Добавьте аккаунт:
 
 ```bash
 opencode-gemini-business add-account \
-  "Основной аккаунт" \
+  "Мой аккаунт" \
   "e1f353e7-0291-44cf-9085-e0b6efd20e41" \
   "CSE.AXUaAj_MKeqeFLr_..." \
   "COS.AfQtEyCcW1aLwKb3..." \
   "1370433092"
 ```
 
-### 📝 Добавление аккаунта
+Аргументы:
+1. Имя аккаунта
+2. `team_id` — UUID из URL `/cid/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/`
+3. Значение cookie `__Secure-C_SES`
+4. Значение cookie `__Host-C_OSES`
+5. `csesidx` — число из URL `?csesidx=...`
+
+Или через переменные окружения:
 
 ```bash
-opencode-gemini-business add-account \
-  "Основной аккаунт" \
-  "e1f353e7-0291-44cf-9085-e0b6efd20e41" \
-  "CSE.AXUaAj_MKeqeFLr_..." \
-  "COS.AfQtEyCcW1aLwKb3..." \
-  "1370433092"
-```
-
-**Или через переменные окружения**:
-
-```bash
-export GEMINI_ACCOUNT_NAME="Основной аккаунт"
+export GEMINI_ACCOUNT_NAME="Мой аккаунт"
 export GEMINI_TEAM_ID="e1f353e7-0291-44cf-9085-e0b6efd20e41"
 export GEMINI_SECURE_C_SES="CSE.AXUaAj_MKeqeFLr_..."
 export GEMINI_HOST_C_OSES="COS.AfQtEyCcW1aLwKb3..."
@@ -195,55 +90,60 @@ export GEMINI_CSESIDX="1370433092"
 opencode-gemini-business add-account
 ```
 
-## 🚀 Использование
-
-### Базовое использование
+### Шаг 3: Использовать
 
 ```bash
-# Используй Pro (лучшее качество)
-opencode run "Проанализируй архитектуру проекта" --model=gemini-pro
+# Flash (быстрая)
+opencode run --model=gemini-business/gemini-2.5-flash "Исправь баг"
 
-# Используй Flash (самая быстрая)
-opencode run "Исправь синтаксическую ошибку" --model=gemini-flash
+# Pro (лучшее качество)
+opencode run --model=gemini-business/gemini-2.5-pro "Спроектируй архитектуру"
 
-# Используй 2.0 Pro (огромный контекст - 2M токенов)
-opencode run "Суммируй эти 100 файлов" --model=gemini-2-pro
+# Модели нового поколения
+opencode run --model=gemini-business/gemini-3-flash "Быстрая задача"
+opencode run --model=gemini-business/gemini-3-pro "Сложное рассуждение"
 ```
 
-### Использование конкретных моделей
+Установить модель по умолчанию в `opencode.json`:
 
-```bash
-# Сложные задачи → gemini-2.5-pro
-opencode run "Спроектируй микросервисную архитектуру" --model=gemini-pro
-
-# Быстрые простые задачи → gemini-2.5-flash
-opencode run "Напиши hello world" --model=gemini-flash
-
-# Массивный контекст → gemini-2.0-pro (2M токенов)
-opencode run "Проанализируй весь codebase" --model=gemini-2-pro
-
-# Производственные нагрузки → gemini-1.5-pro
-opencode run "Ревью этого PR" --model=gemini-1.5-pro
-
-# Экономичная → gemini-1.5-flash
-opencode run "Сгенерируй тесты" --model=gemini-1.5-flash
+```json
+{
+  "model": "gemini-business/gemini-2.5-flash"
+}
 ```
 
-### Установить модель по умолчанию
+## Извлечение учётных данных
 
-```bash
-# Установи предпочитаемую модель по умолчанию
-export OPENCODE_MODEL=gemini-pro
-opencode run "Твоя задача здесь"
+### Где найти каждое значение
+
+Войдите в [business.gemini.google](https://business.gemini.google) и посмотрите URL:
+
+```
+https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/r/session/123?csesidx=1370433092
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                  ^^^^^^^^^^
+                                        team_id (UUID после /cid/)                            csesidx
 ```
 
-### 🛠️ Управление аккаунтами
+### Cookies
+
+**Способ 1: Расширение браузера (рекомендуется)**
+
+1. Установите [Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
+2. Откройте `business.gemini.google` и экспортируйте cookies
+3. Найдите `__Secure-C_SES` (начинается с `CSE.`) и `__Host-C_OSES` (начинается с `COS.`)
+
+**Способ 2: DevTools**
+
+1. Откройте DevTools (F12) → **Application** → **Cookies** → `https://business.gemini.google`
+2. Скопируйте значения `__Secure-C_SES` и `__Host-C_OSES`
+
+## Управление аккаунтами
 
 ```bash
-# Список всех аккаунтов
+# Список аккаунтов
 opencode-gemini-business list-accounts
 
-# Тест конкретного аккаунта
+# Тест подключения
 opencode-gemini-business test-account <account_id>
 
 # Удалить аккаунт
@@ -253,145 +153,64 @@ opencode-gemini-business remove-account <account_id>
 opencode-gemini-business help
 ```
 
-## 🔄 Стратегии ротации
+## Стратегии ротации
 
-| Стратегия | Поведение | Применение |
-|-----------|-----------|------------|
-| `round-robin` | Циклическое переключение по порядку | Сбалансированное использование всех аккаунтов |
-| `least-used` | Выбор аккаунта с самой старой меткой last_used | Минимизация использования отдельных аккаунтов |
-| `random` | Случайный вероятностный выбор | Непредсказуемое распределение нагрузки |
+| Стратегия | Поведение |
+|-----------|-----------|
+| `round-robin` (по умолчанию) | Циклический обход аккаунтов по порядку |
+| `least-used` | Выбор наименее недавно использованного |
+| `random` | Случайный выбор |
 
-**Настройка стратегии** в конфиге OpenCode:
+Настраивается в `~/.config/opencode/gemini-business-accounts.json` (создаётся автоматически при первом `add-account`).
 
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-gemini-business@latest"],
-  "provider": {
-    "gemini-business": {
-      "rotation_strategy": "least-used",  // ← Измените здесь
-      "models": {
-        "gemini-2.5-pro": {
-          "name": "Gemini 2.5 Pro (Business)",
-          "limit": { "context": 1048576, "output": 32768 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        }
-      }
-    }
-  }
-}
-```
+## Как это работает
 
+1. Плагин регистрируется как auth-провайдер `gemini-business` в OpenCode
+2. При запросе `loader()` возвращает кастомную функцию `fetch()`
+3. Кастомный `fetch()` перехватывает запрос от `@ai-sdk/openai-compatible`
+4. Вместо вызова `baseURL/chat/completions` он:
+   - Выбирает аккаунт по стратегии ротации
+   - Получает JWT-токен из XSRF-эндпоинта
+   - Создаёт сессию через `widgetCreateSession`
+   - Отправляет запрос на `widgetStreamAssist`
+   - Конвертирует ответ в OpenAI-совместимый формат
+5. Поддерживает стриминг (SSE) и обычные ответы
 
-## ❓ Часто задаваемые вопросы
-
-<details>
-<summary><b>В: Как обработать истечение сессии?</b></summary>
-
-Плагин автоматически обновляет сессии. Сессии кешируются на 50 минут и обновляются автоматически при необходимости. Если видите ошибки "Session has expired", плагин создаст новую сессию автоматически.
-
-</details>
-
-<details>
-<summary><b>В: Какую модель использовать?</b></summary>
-
-- **Сложные задачи**: `gemini-2.5-pro` или `gemini-2.0-pro` для лучших рассуждений
-- **Быстрые задачи**: `gemini-2.5-flash` или `gemini-1.5-flash` для скорости
-- **Большой контекст**: `gemini-2.0-pro` поддерживает до 2M токенов
-
-</details>
-
-<details>
-<summary><b>В: Сколько аккаунтов добавлять?</b></summary>
-
-Рекомендуется: 2-5 аккаунтов для оптимального резервирования и распределения нагрузки. Больше аккаунтов обеспечивает лучшую избыточность, но усложняет конфигурацию.
-
-</details>
+## FAQ
 
 <details>
 <summary><b>В: Где найти team_id?</b></summary>
 
-**Простой способ:** Посмотрите на URL в браузере, когда вы вошли в Gemini Business:
-```
-https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/...
-```
+Посмотрите URL в браузере: `https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/...`
 
-UUID после `/cid/` - это ваш `team_id`. Формат: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-
-Этот ID идентифицирует вашу организацию/команду в Google Workspace и требуется для всех API запросов.
-
+UUID после `/cid/` — это ваш `team_id`.
 </details>
 
 <details>
-<summary><b>В: Безопасен ли скрипт извлечения credentials?</b></summary>
+<summary><b>В: Нужно ли запускать `opencode auth login`?</b></summary>
 
-**ДА, 100% безопасен!** Скрипт:
-- ✅ Работает ТОЛЬКО в вашем браузере (локально)
-- ✅ НЕ отправляет данные на внешние серверы
-- ✅ Только читает cookies с business.gemini.google
-- ✅ Открытый исходный код - можете проверить
-
-**Никогда** не запускайте скрипты из ненадежных источников. Используйте только из официального репозитория.
-
+Нет. Команда `add-account` автоматически создаёт auth-запись в `~/.local/share/opencode/auth.json`. Если по какой-то причине запись не создалась, запустите `opencode auth login`, выберите **gemini-business** и введите любой ключ (например `unused`).
 </details>
 
 <details>
-<summary><b>В: В чём разница от Google AI Studio?</b></summary>
+<summary><b>В: Ошибки истечения сессии?</b></summary>
 
-Этот плагин использует **Gemini Business API** (`business.gemini.google`):
-- ✅ Корпоративные/бизнес аккаунты
-- ✅ Более высокие лимиты
-- ✅ Бизнес-функции
-
-**НЕ** Google AI Studio (`aistudio.google.com`):
-- ❌ Бесплатный/разработческий уровень
-- ❌ Более низкие лимиты
-- ❌ Другие эндпоинты API
-
+Плагин автоматически обновляет сессии (кешируются на 50 минут). Если ошибки не проходят — cookies могли истечь, извлеките их заново из браузера.
 </details>
 
-## 🔒 Лучшие практики безопасности
+<details>
+<summary><b>В: Чем отличается от Google AI Studio?</b></summary>
 
-### Безопасность учетных данных
+Плагин использует **Gemini Business API** (`business.gemini.google`) — корпоративные аккаунты с высокими лимитами. НЕ Google AI Studio (`aistudio.google.com`).
+</details>
 
-```
-⚠️ КРИТИЧНО: Держите учетные данные в СЕКРЕТЕ!
+## Безопасность
 
-✅ ДЕЛАЙТЕ:
-- Храните credentials только в ~/.config/opencode/gemini-business-accounts.json
-- Используйте переменные окружения для временного доступа
-- Регулярно меняйте учетные данные
-- Добавьте *.json в .gitignore
+- Учётные данные хранятся локально в `~/.config/opencode/gemini-business-accounts.json`
+- Не коммитьте credentials в git
+- Регулярно обновляйте cookies
+- Плагин не отправляет данные третьим сторонам
 
-❌ НЕ ДЕЛАЙТЕ:
-- Не коммитьте credentials в git репозитории
-- Не передавайте credentials другим
-- Не храните credentials в открытых текстовых файлах
-- Не используйте credentials в публичных окружениях
-```
+## Лицензия
 
-### Безопасность скрипта извлечения cookies
-
-```
-✅ Скрипт БЕЗОПАСЕН, потому что:
-- Работает 100% локально в вашем браузере
-- НЕ делает внешних сетевых запросов
-- НЕ передает данные на серверы
-- Открытый исходный код и проверяемый
-
-⚠️ Советы по безопасности:
-- Используйте только из официального репозитория
-- Проверьте код перед запуском (он короткий!)
-- Никогда не вставляйте модифицированные скрипты
-- Проверяйте консоль браузера на предупреждения
-```
-
-## 📄 Лицензия
-
-Лицензия MIT - используйте плагин свободно!
-
-## 💬 Нужна помощь?
-
-- Проверьте [FAQ](#-часто-задаваемые-вопросы) для частых вопросов
-- Тестируйте аккаунты: `opencode-gemini-business test-account <account_id>`
-- Сообщайте о проблемах: [GitHub Issues](https://github.com/izzzzzi/opencode-gemini-business/issues)
+MIT

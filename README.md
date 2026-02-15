@@ -1,60 +1,32 @@
-# 🔄 opencode-gemini-business
+# opencode-gemini-business
 
-[🇬🇧 **English**](README.md) | [🇷🇺 Русский](README.ru.md)
+[English](README.md) | [Русский](README.ru.md)
 
 > Multi-account Gemini Business pool with intelligent rotation for OpenCode
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![npm version](https://img.shields.io/npm/v/opencode-gemini-business.svg)](https://www.npmjs.com/package/opencode-gemini-business)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
 ---
 
-## 📖 Overview
+## Overview
 
-**opencode-gemini-business** is an OpenCode plugin that enables multi-account rotation for **Gemini Business API**, providing automatic failover and load balancing across multiple accounts. Pool multiple Gemini Business accounts with intelligent rotation strategies to overcome rate limits.
+**opencode-gemini-business** is an OpenCode plugin that enables multi-account rotation for **Gemini Business API** (`business.gemini.google`), providing automatic failover and load balancing across multiple accounts.
 
-**⚠️ Important**: This plugin uses the **official Gemini Business API** (`business.gemini.google`), NOT Google AI Studio.
+**Important**: This plugin uses the **Gemini Business / Enterprise API**, NOT Google AI Studio.
 
-## ✨ Key Features
+## Supported Models
 
-| Feature | Description |
-|---------|-------------|
-| 🔄 **Multi-Account Rotation** | Automatically rotate between multiple Gemini Business accounts |
-| 🛡️ **Automatic Failover** | Retry failed requests with different accounts seamlessly |
-| 🔐 **Session Management** | Built-in XSRF token and session lifecycle management |
-| ⚙️ **Flexible Strategies** | Round-robin, least-used, or random rotation |
-| 📊 **Health Monitoring** | Track usage statistics and error counts per account |
-| 🚀 **OpenCode Compatible** | Works seamlessly with OpenCode's provider system |
-| 💾 **Persistent Config** | Secure storage in `~/.config/opencode/gemini-business-accounts.json` |
+| Model | Internal ID | Best For |
+|-------|------------|----------|
+| `gemini-2.5-flash` | gemini-2.5-flash | Everyday tasks, fast responses |
+| `gemini-2.5-pro` | gemini-2.5-pro | Complex reasoning |
+| `gemini-3-flash` | gemini-3-flash-preview | Next-gen fast model |
+| `gemini-3-pro` | gemini-3-pro | Next-gen reasoning |
 
-## 🤖 Supported Models
+## Quick Start
 
-The plugin supports all Gemini Business models:
-
-| Model | Context Length | Max Output | Best For |
-|-------|---------------|------------|----------|
-| `gemini-2.5-pro` | 1M tokens | 32K tokens | Complex reasoning, long documents |
-| `gemini-2.5-flash` | 1M tokens | 8K tokens | Fast responses, simple tasks |
-| `gemini-2.0-pro` | 2M tokens | 32K tokens | Massive context, deep analysis |
-| `gemini-1.5-pro` | 2M tokens | 8K tokens | Production workloads |
-| `gemini-1.5-flash` | 1M tokens | 8K tokens | Cost-effective development |
-
-## 🔧 Installation & Configuration
-
-### 📦 Install the Plugin
-
-```bash
-npm install -g opencode-gemini-business
-```
-
-Or use with npx:
-
-```bash
-npx opencode-gemini-business@latest
-```
-
-### ⚙️ Configure OpenCode
+### Step 1: Configure OpenCode
 
 Add to `~/.config/opencode/opencode.json`:
 
@@ -64,106 +36,31 @@ Add to `~/.config/opencode/opencode.json`:
   "plugin": ["opencode-gemini-business@latest"],
   "provider": {
     "gemini-business": {
+      "name": "Gemini Business",
+      "options": {
+        "baseURL": "https://business.gemini.google/v1",
+        "apiKey": "unused"
+      },
       "models": {
-        "gemini-2.5-pro": {
-          "name": "Gemini 2.5 Pro (Business)",
-          "limit": { "context": 1048576, "output": 32768 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "gemini-2.5-flash": {
-          "name": "Gemini 2.5 Flash (Business)",
-          "limit": { "context": 1048576, "output": 8192 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "gemini-2.0-pro": {
-          "name": "Gemini 2.0 Pro (Business)",
-          "limit": { "context": 2097152, "output": 32768 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "gemini-1.5-pro": {
-          "name": "Gemini 1.5 Pro (Business)",
-          "limit": { "context": 2097152, "output": 8192 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "gemini-1.5-flash": {
-          "name": "Gemini 1.5 Flash (Business)",
-          "limit": { "context": 1048576, "output": 8192 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        }
-      }
-    }
-  }
-}
-```
-
-**Or use short aliases:**
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-gemini-business@latest"],
-  "provider": {
-    "gemini-business": {
-      "models": {
-        "gemini-2.5-pro": { "name": "Gemini 2.5 Pro" },
         "gemini-2.5-flash": { "name": "Gemini 2.5 Flash" },
-        "gemini-2.0-pro": { "name": "Gemini 2.0 Pro" },
-        "gemini-1.5-pro": { "name": "Gemini 1.5 Pro" },
-        "gemini-1.5-flash": { "name": "Gemini 1.5 Flash" }
+        "gemini-2.5-pro": { "name": "Gemini 2.5 Pro" },
+        "gemini-3-flash": { "name": "Gemini 3 Flash" },
+        "gemini-3-pro": { "name": "Gemini 3 Pro" }
       }
     }
   }
 }
 ```
 
-### 🔑 Extract Credentials
+### Step 2: Add Gemini Business account
 
-#### Method 1: Using Browser Extension (RECOMMENDED) ⚡
+Install the CLI tool:
 
-**Use the "Get cookies.txt LOCALLY" extension** to export cookies including HttpOnly:
+```bash
+npm install -g opencode-gemini-business
+```
 
-1. **Install Extension**:
-   - [Chrome Web Store: Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
-   - This extension can export **all cookies** including HttpOnly (which JavaScript cannot access)
-
-2. **Login** to [Gemini Business](https://business.gemini.google)
-
-3. **Click extension icon** → Export cookies for `business.gemini.google`
-
-4. **Find in exported file**:
-   - `__Secure-C_SES`: `CSE.xxx...`
-   - `__Host-C_OSES`: `COS.xxx...`
-
-5. **Get csesidx from URL**:
-   - Look at your browser URL: `?csesidx=1370433092`
-   - Copy the number after `csesidx=`
-
-6. **Get team_id from URL**:
-   - Look at your browser URL: `/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/`
-   - Copy the UUID after `/cid/` - this is your `team_id`
-   - Format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-
-7. **Add account** (see below)
-
-#### Method 2: Manual Extraction via DevTools
-
-1. **Login** to [Gemini Business](https://business.gemini.google)
-
-2. **Get team_id from URL**:
-   - Look at your browser URL: `/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/`
-   - Copy the UUID after `/cid/` - this is your `team_id`
-
-3. **Get csesidx from URL**:
-   - Look at your browser URL: `?csesidx=1370433092`
-   - Copy the number after `csesidx=`
-
-4. **Open DevTools** (F12) → **Application** tab → **Cookies** → `https://business.gemini.google`
-
-5. **Copy cookies**:
-   - Find `__Secure-C_SES` → copy the value
-   - Find `__Host-C_OSES` → copy the value
-
-6. **Add account**:
+Then add your account:
 
 ```bash
 opencode-gemini-business add-account \
@@ -174,7 +71,14 @@ opencode-gemini-business add-account \
   "1370433092"
 ```
 
-**Or use environment variables**:
+Arguments:
+1. Account name
+2. `team_id` — UUID from URL `/cid/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/`
+3. `__Secure-C_SES` cookie value
+4. `__Host-C_OSES` cookie value
+5. `csesidx` — number from URL `?csesidx=...`
+
+Or use environment variables:
 
 ```bash
 export GEMINI_ACCOUNT_NAME="My Account"
@@ -186,206 +90,127 @@ export GEMINI_CSESIDX="1370433092"
 opencode-gemini-business add-account
 ```
 
-## 🚀 Usage
-
-### Basic Usage
+### Step 3: Use it
 
 ```bash
-# Use Pro model (best quality)
-opencode run "Analyze this codebase architecture" --model=gemini-pro
+# Flash model (fast)
+opencode run --model=gemini-business/gemini-2.5-flash "Fix this bug"
 
-# Use Flash model (fastest)
-opencode run "Fix this syntax error" --model=gemini-flash
+# Pro model (best quality)
+opencode run --model=gemini-business/gemini-2.5-pro "Design architecture"
 
-# Use 2.0 Pro (largest context - 2M tokens)
-opencode run "Summarize these 100 files" --model=gemini-2-pro
+# Next-gen models
+opencode run --model=gemini-business/gemini-3-flash "Quick task"
+opencode run --model=gemini-business/gemini-3-pro "Complex reasoning"
 ```
 
-### Model-Specific Usage
+Set as default model in `opencode.json`:
 
-```bash
-# Complex reasoning tasks → gemini-2.5-pro
-opencode run "Design microservices architecture" --model=gemini-pro
-
-# Quick simple tasks → gemini-2.5-flash
-opencode run "Write hello world" --model=gemini-flash
-
-# Massive context → gemini-2.0-pro (2M tokens)
-opencode run "Analyze entire codebase" --model=gemini-2-pro
-
-# Production workloads → gemini-1.5-pro
-opencode run "Review this PR" --model=gemini-1.5-pro
-
-# Cost-effective → gemini-1.5-flash
-opencode run "Generate tests" --model=gemini-1.5-flash
+```json
+{
+  "model": "gemini-business/gemini-2.5-flash"
+}
 ```
 
-### Set Default Model
+## Extracting Credentials
 
-```bash
-# Set your preferred model as default
-export OPENCODE_MODEL=gemini-pro
-opencode run "Your task here"
+### Where to find each value
+
+Login to [business.gemini.google](https://business.gemini.google) and look at the URL:
+
+```
+https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/r/session/123?csesidx=1370433092
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                  ^^^^^^^^^^
+                                        team_id (UUID after /cid/)                            csesidx
 ```
 
-### 🛠️ Account Management
+### Cookies
+
+**Method 1: Browser Extension (Recommended)**
+
+1. Install [Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
+2. Open `business.gemini.google` and export cookies
+3. Find `__Secure-C_SES` (starts with `CSE.`) and `__Host-C_OSES` (starts with `COS.`)
+
+**Method 2: DevTools**
+
+1. Open DevTools (F12) → **Application** → **Cookies** → `https://business.gemini.google`
+2. Copy `__Secure-C_SES` and `__Host-C_OSES` values
+
+## Account Management
 
 ```bash
 # List all accounts
 opencode-gemini-business list-accounts
 
-# Test specific account
+# Test account connectivity
 opencode-gemini-business test-account <account_id>
 
 # Remove account
 opencode-gemini-business remove-account <account_id>
 
-# Show help
+# Help
 opencode-gemini-business help
 ```
 
-## 🔄 Rotation Strategies
+## Rotation Strategies
 
-| Strategy | Behavior | Use Case |
-|----------|----------|----------|
-| `round-robin` | Cycles through accounts in order | Balanced usage across all accounts |
-| `least-used` | Selects account with oldest last_used timestamp | Minimize individual account usage |
-| `random` | Random probabilistic selection | Unpredictable load distribution |
+| Strategy | Behavior |
+|----------|----------|
+| `round-robin` (default) | Cycles through accounts in order |
+| `least-used` | Selects least recently used account |
+| `random` | Random selection |
 
-**Configure strategy** in OpenCode config:
+Configure in `~/.config/opencode/gemini-business-accounts.json` (auto-created on first `add-account`).
 
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-gemini-business@latest"],
-  "provider": {
-    "gemini-business": {
-      "rotation_strategy": "least-used",  // ← Change here
-      "models": {
-        "gemini-2.5-pro": {
-          "name": "Gemini 2.5 Pro (Business)",
-          "limit": { "context": 1048576, "output": 32768 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        }
-      }
-    }
-  }
-}
-```
+## How It Works
 
+1. Plugin registers as an OpenCode auth provider for `gemini-business`
+2. When a request comes in, `loader()` returns a custom `fetch()` function
+3. Custom `fetch()` intercepts the request from `@ai-sdk/openai-compatible`
+4. Instead of calling `baseURL/chat/completions`, it:
+   - Picks an account via rotation strategy
+   - Gets a JWT token from XSRF endpoint
+   - Creates a session via `widgetCreateSession`
+   - Sends the actual request to `widgetStreamAssist`
+   - Converts the response back to OpenAI-compatible format
+5. Supports both streaming (SSE) and non-streaming responses
 
-## ❓ FAQ
-
-<details>
-<summary><b>Q: How do I handle session expiration?</b></summary>
-
-The plugin automatically refreshes sessions. Sessions are cached for 50 minutes and auto-refresh when needed. If you see "Session has expired" errors, the plugin will create a new session automatically.
-
-</details>
-
-<details>
-<summary><b>Q: Which model should I use?</b></summary>
-
-- **Complex tasks**: `gemini-2.5-pro` or `gemini-2.0-pro` for best reasoning
-- **Quick tasks**: `gemini-2.5-flash` or `gemini-1.5-flash` for speed
-- **Large contexts**: `gemini-2.0-pro` supports up to 2M tokens
-
-</details>
-
-<details>
-<summary><b>Q: How many accounts should I add?</b></summary>
-
-Recommended: 2-5 accounts for optimal failover and load distribution. More accounts provide better redundancy but increase configuration complexity.
-
-</details>
+## FAQ
 
 <details>
 <summary><b>Q: Where do I find team_id?</b></summary>
 
-**Easy way:** Look at your browser URL when logged into Gemini Business:
-```
-https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/...
-```
+Look at the URL in your browser: `https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/...`
 
-The UUID after `/cid/` is your `team_id`. Format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-
-This ID identifies your organization/team in Google Workspace and is required for all API requests.
-
+The UUID after `/cid/` is your `team_id`.
 </details>
 
 <details>
-<summary><b>Q: Is the credential extraction script safe?</b></summary>
+<summary><b>Q: Do I need to run `opencode auth login`?</b></summary>
 
-**YES, 100% safe!** The script:
-- ✅ Runs ONLY in your browser (locally)
-- ✅ Does NOT send data to external servers
-- ✅ Only reads cookies from business.gemini.google
-- ✅ Open source - you can review the code
-
-**Never** run scripts from untrusted sources. Only use from official repository.
-
+No. The `add-account` command automatically creates the auth record in `~/.local/share/opencode/auth.json`. If for some reason it wasn't created, you can run `opencode auth login`, select **gemini-business**, and enter any key (e.g. `unused`).
 </details>
 
 <details>
-<summary><b>Q: What's the difference from Google AI Studio?</b></summary>
+<summary><b>Q: Session expired errors?</b></summary>
 
-This plugin uses **Gemini Business API** (`business.gemini.google`), which is:
-- ✅ Enterprise/business accounts
-- ✅ Higher rate limits
-- ✅ Business-grade features
-
-**NOT** Google AI Studio (`aistudio.google.com`), which is:
-- ❌ Free/developer tier
-- ❌ Lower rate limits
-- ❌ Different API endpoints
-
+The plugin automatically refreshes sessions (cached for 50 minutes). If you see persistent errors, your cookies may have expired — re-extract them from the browser.
 </details>
 
-## 🔒 Security Best Practices
+<details>
+<summary><b>Q: Difference from Google AI Studio?</b></summary>
 
-### Credential Safety
+This plugin uses **Gemini Business API** (`business.gemini.google`) — enterprise accounts with higher rate limits. NOT Google AI Studio (`aistudio.google.com`).
+</details>
 
-```
-⚠️ CRITICAL: Keep your credentials PRIVATE!
+## Security
 
-✅ DO:
-- Store credentials only in ~/.config/opencode/gemini-business-accounts.json
-- Use environment variables for temporary access
-- Rotate credentials regularly
-- Add *.json to .gitignore
+- Credentials are stored locally in `~/.config/opencode/gemini-business-accounts.json`
+- Never commit credentials to git
+- Rotate cookies regularly
+- The plugin does not send credentials to any third-party services
 
-❌ DON'T:
-- Commit credentials to git repositories
-- Share credentials with others
-- Store credentials in plain text files
-- Use credentials in public environments
-```
+## License
 
-### Cookie Extraction Script Safety
-
-```
-✅ The extraction script is SAFE because:
-- Runs 100% locally in your browser
-- NO external network requests
-- NO data transmission to servers
-- Open source and reviewable
-
-⚠️ Security Tips:
-- Only use from official repository
-- Review code before running (it's short!)
-- Never paste modified scripts
-- Check browser console for any warnings
-```
-
-## 📄 License
-
-MIT License - feel free to use this plugin!
-
-## 💬 Need Help?
-
-- Check the [FAQ](#-faq) above for common questions
-- Test your accounts: `opencode-gemini-business test-account <account_id>`
-- Report issues: [GitHub Issues](https://github.com/izzzzzi/opencode-gemini-business/issues)
-
----
-
+MIT

@@ -6,8 +6,38 @@
 import { AccountManager } from './src/account-manager.js';
 import { GeminiBusinessAPI } from './src/gemini-business-api.js';
 
-const GeminiBusinessPlugin = (_ctx: any) => {
-  // Create account manager once per plugin instance.
+function isAsyncIterable<T>(value: unknown): value is AsyncIterable<T> {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    Symbol.asyncIterator in (value as object)
+  );
+}
+
+function toSSEStream(
+  chunks: AsyncIterable<unknown>
+): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      try {
+        for await (const chunk of chunks) {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`)
+          );
+        }
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+      } catch (error) {
+        controller.error(error);
+        return;
+      }
+      controller.close();
+    },
+  });
+}
+
+export const GeminiBusinessPlugin = async (_ctx: any) => {
   const accountManager = new AccountManager();
 
   return {
@@ -18,6 +48,7 @@ const GeminiBusinessPlugin = (_ctx: any) => {
         await accountManager.loadAccounts();
 
         const accounts = accountManager.getAccounts();
+
         if (accounts.length === 0) {
           console.error(
             '\n❌ No Gemini Business accounts configured!\n' +
@@ -35,10 +66,9 @@ const GeminiBusinessPlugin = (_ctx: any) => {
         );
 
         return {
-          accountCount: accounts.length,
-          strategy: accountManager.getConfig().rotation_strategy,
+          apiKey: '',
 
-          async fetch(_input: any, options: any): Promise<any> {
+          async fetch(_input: any, init: any): Promise<any> {
             try {
               const account = accountManager.getNextAccount();
               if (!account) {
@@ -57,12 +87,29 @@ const GeminiBusinessPlugin = (_ctx: any) => {
                 );
               }
 
-              const requestBody = options?.body
-                ? JSON.parse(options.body as string)
+              const requestBody = init?.body
+                ? JSON.parse(init.body as string)
                 : {};
               const response = await api.chatCompletion(requestBody);
 
               accountManager.resetAccountErrors(account.id);
+
+              if (requestBody.stream) {
+                if (!isAsyncIterable(response)) {
+                  throw new Error(
+                    'Provider returned non-stream response for stream request'
+                  );
+                }
+
+                return new Response(toSSEStream(response), {
+                  status: 200,
+                  headers: {
+                    'Content-Type': 'text/event-stream; charset=utf-8',
+                    'Cache-Control': 'no-cache',
+                    Connection: 'keep-alive',
+                  },
+                });
+              }
 
               return new Response(JSON.stringify(response), {
                 status: 200,
@@ -87,28 +134,10 @@ const GeminiBusinessPlugin = (_ctx: any) => {
 
       methods: [
         {
-          type: 'cookie' as const,
-          label: 'Gemini Business Cookie Auth',
-          authorize: async () => ({
-            type: 'instructions' as const,
-            instructions:
-              '📋 To configure Gemini Business accounts:\n\n' +
-              '1. Login to https://business.gemini.google\n' +
-              '2. Open DevTools (F12) → Network tab\n' +
-              '3. Make any API request (refresh page or send a prompt)\n' +
-              '4. Find request headers and copy:\n' +
-              '   • team_id (from X-Goog-Team-Id header)\n' +
-              '   • __Secure-c_ses cookie\n' +
-              '   • __Host-c_oses cookie\n' +
-              '   • csesidx value\n\n' +
-              '5. Run: opencode-gemini-business add-account\n' +
-              '   Or use environment variables (see docs)\n\n' +
-              'For more help: opencode-gemini-business help',
-          }),
+          type: 'api' as const,
+          label: 'Gemini Business (enter any key)',
         },
       ],
     },
   };
 };
-
-export default GeminiBusinessPlugin;
