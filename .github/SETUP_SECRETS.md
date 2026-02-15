@@ -8,9 +8,9 @@ This document explains how to set up GitHub Secrets for CI/CD automation.
 
 **Purpose**: Authenticate with NPM registry for package publishing
 
-**Value**:
-```
-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
+**How to get:**
+```bash
+npm token create
 ```
 
 **How to add:**
