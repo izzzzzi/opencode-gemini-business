@@ -138,11 +138,10 @@ Add to `~/.config/opencode/opencode.json`:
    - Look at your browser URL: `?csesidx=1370433092`
    - Copy the number after `csesidx=`
 
-6. **Get team_id from Network tab**:
-   - F12 → **Network** tab
-   - Send a message to Gemini
-   - Find request to `biz-discoveryengine.googleapis.com`
-   - Click request → **Headers** → find `X-Goog-Team-Id: team_xxxxx`
+6. **Get team_id from URL**:
+   - Look at your browser URL: `/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/`
+   - Copy the UUID after `/cid/` - this is your `team_id`
+   - Format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
 
 7. **Add account** (see below)
 
@@ -150,37 +149,39 @@ Add to `~/.config/opencode/opencode.json`:
 
 1. **Login** to [Gemini Business](https://business.gemini.google)
 
-2. **Open DevTools** (F12) → **Network tab**
+2. **Get team_id from URL**:
+   - Look at your browser URL: `/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/`
+   - Copy the UUID after `/cid/` - this is your `team_id`
 
-3. **Send a message** to Gemini or refresh the page
+3. **Get csesidx from URL**:
+   - Look at your browser URL: `?csesidx=1370433092`
+   - Copy the number after `csesidx=`
 
-4. **Find any request** to `biz-discoveryengine.googleapis.com`
+4. **Open DevTools** (F12) → **Application** tab → **Cookies** → `https://business.gemini.google`
 
-5. **Copy from request headers**:
-   - `X-Goog-Team-Id` → this is your `team_id`
-   - Cookie: `__Secure-c_ses` → copy the value
-   - Cookie: `__Host-c_oses` → copy the value
-   - Find `csesidx` in request payload or headers
+5. **Copy cookies**:
+   - Find `__Secure-C_SES` → copy the value
+   - Find `__Host-C_OSES` → copy the value
 
 6. **Add account**:
 
 ```bash
 opencode-gemini-business add-account \
   "My Account" \
-  "team_abc123" \
-  "secure_ses_cookie_value" \
-  "host_oses_cookie_value" \
-  "csesidx_value"
+  "e1f353e7-0291-44cf-9085-e0b6efd20e41" \
+  "CSE.AXUaAj_MKeqeFLr_..." \
+  "COS.AfQtEyCcW1aLwKb3..." \
+  "1370433092"
 ```
 
 **Or use environment variables**:
 
 ```bash
 export GEMINI_ACCOUNT_NAME="My Account"
-export GEMINI_TEAM_ID="team_abc123"
-export GEMINI_SECURE_C_SES="secure_ses_value"
-export GEMINI_HOST_C_OSES="host_oses_value"
-export GEMINI_CSESIDX="csesidx_value"
+export GEMINI_TEAM_ID="e1f353e7-0291-44cf-9085-e0b6efd20e41"
+export GEMINI_SECURE_C_SES="CSE.AXUaAj_MKeqeFLr_..."
+export GEMINI_HOST_C_OSES="COS.AfQtEyCcW1aLwKb3..."
+export GEMINI_CSESIDX="1370433092"
 
 opencode-gemini-business add-account
 ```
@@ -295,6 +296,20 @@ The plugin automatically refreshes sessions. Sessions are cached for 50 minutes 
 <summary><b>Q: How many accounts should I add?</b></summary>
 
 Recommended: 2-5 accounts for optimal failover and load distribution. More accounts provide better redundancy but increase configuration complexity.
+
+</details>
+
+<details>
+<summary><b>Q: Where do I find team_id?</b></summary>
+
+**Easy way:** Look at your browser URL when logged into Gemini Business:
+```
+https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/...
+```
+
+The UUID after `/cid/` is your `team_id`. Format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+
+This ID identifies your organization/team in Google Workspace and is required for all API requests.
 
 </details>
 

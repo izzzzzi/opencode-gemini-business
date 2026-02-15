@@ -136,11 +136,10 @@ npx opencode-gemini-business@latest
    - Посмотрите на URL в браузере: `?csesidx=1370433092`
    - Скопируйте число после `csesidx=`
 
-6. **Получите team_id из вкладки Network**:
-   - F12 → вкладка **Network**
-   - Отправьте сообщение в Gemini
-   - Найдите запрос к `biz-discoveryengine.googleapis.com`
-   - Кликните на запрос → **Headers** → найдите `X-Goog-Team-Id: team_xxxxx`
+6. **Получите team_id из URL**:
+   - Посмотрите на URL в браузере: `/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/`
+   - Скопируйте UUID после `/cid/` - это ваш `team_id`
+   - Формат: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
 
 7. **Добавьте аккаунт** (см. ниже)
 
@@ -148,27 +147,29 @@ npx opencode-gemini-business@latest
 
 1. **Войдите** в [Gemini Business](https://business.gemini.google)
 
-2. **Откройте DevTools** (F12) → вкладка **Network**
+2. **Получите team_id из URL**:
+   - Посмотрите на URL в браузере: `/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/`
+   - Скопируйте UUID после `/cid/` - это ваш `team_id`
 
-3. **Отправьте сообщение** в Gemini или обновите страницу
+3. **Получите csesidx из URL**:
+   - Посмотрите на URL в браузере: `?csesidx=1370433092`
+   - Скопируйте число после `csesidx=`
 
-4. **Найдите любой запрос** к `biz-discoveryengine.googleapis.com`
+4. **Откройте DevTools** (F12) → вкладка **Application** → **Cookies** → `https://business.gemini.google`
 
-5. **Скопируйте из заголовков запроса**:
-   - `X-Goog-Team-Id` → это ваш `team_id`
-   - Cookie: `__Secure-c_ses` → скопируйте значение
-   - Cookie: `__Host-c_oses` → скопируйте значение
-   - Найдите `csesidx` в теле запроса или заголовках
+5. **Скопируйте cookies**:
+   - Найдите `__Secure-C_SES` → скопируйте значение
+   - Найдите `__Host-C_OSES` → скопируйте значение
 
 6. **Добавьте аккаунт**:
 
 ```bash
 opencode-gemini-business add-account \
   "Основной аккаунт" \
-  "team_abc123" \
-  "secure_ses_cookie_value" \
-  "host_oses_cookie_value" \
-  "csesidx_value"
+  "e1f353e7-0291-44cf-9085-e0b6efd20e41" \
+  "CSE.AXUaAj_MKeqeFLr_..." \
+  "COS.AfQtEyCcW1aLwKb3..." \
+  "1370433092"
 ```
 
 ### 📝 Добавление аккаунта
@@ -176,20 +177,20 @@ opencode-gemini-business add-account \
 ```bash
 opencode-gemini-business add-account \
   "Основной аккаунт" \
-  "team_abc123" \
-  "secure_ses_cookie_value" \
-  "host_oses_cookie_value" \
-  "csesidx_value"
+  "e1f353e7-0291-44cf-9085-e0b6efd20e41" \
+  "CSE.AXUaAj_MKeqeFLr_..." \
+  "COS.AfQtEyCcW1aLwKb3..." \
+  "1370433092"
 ```
 
 **Или через переменные окружения**:
 
 ```bash
 export GEMINI_ACCOUNT_NAME="Основной аккаунт"
-export GEMINI_TEAM_ID="team_abc123"
-export GEMINI_SECURE_C_SES="secure_ses_value"
-export GEMINI_HOST_C_OSES="host_oses_value"
-export GEMINI_CSESIDX="csesidx_value"
+export GEMINI_TEAM_ID="e1f353e7-0291-44cf-9085-e0b6efd20e41"
+export GEMINI_SECURE_C_SES="CSE.AXUaAj_MKeqeFLr_..."
+export GEMINI_HOST_C_OSES="COS.AfQtEyCcW1aLwKb3..."
+export GEMINI_CSESIDX="1370433092"
 
 opencode-gemini-business add-account
 ```
@@ -304,6 +305,20 @@ opencode-gemini-business help
 <summary><b>В: Сколько аккаунтов добавлять?</b></summary>
 
 Рекомендуется: 2-5 аккаунтов для оптимального резервирования и распределения нагрузки. Больше аккаунтов обеспечивает лучшую избыточность, но усложняет конфигурацию.
+
+</details>
+
+<details>
+<summary><b>В: Где найти team_id?</b></summary>
+
+**Простой способ:** Посмотрите на URL в браузере, когда вы вошли в Gemini Business:
+```
+https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/...
+```
+
+UUID после `/cid/` - это ваш `team_id`. Формат: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+
+Этот ID идентифицирует вашу организацию/команду в Google Workspace и требуется для всех API запросов.
 
 </details>
 
