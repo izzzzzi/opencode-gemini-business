@@ -25,6 +25,9 @@ import { GeminiBusinessAccount } from './src/types.js';
  * with Gemini Business accounts configured via CLI.
  */
 export const GeminiBusinessPlugin = (ctx: any) => {
+  // Create account manager once for the plugin instance
+  const accountManager = new AccountManager();
+
   return {
     auth: {
       provider: 'gemini-business',
@@ -33,7 +36,6 @@ export const GeminiBusinessPlugin = (ctx: any) => {
        * Loader function - called by OpenCode to initialize the provider
        */
       async loader(getAuth: any, provider: any) {
-        const accountManager = new AccountManager();
         await accountManager.loadAccounts();
 
         const accounts = accountManager.getAccounts();
