@@ -24,7 +24,7 @@ import { GeminiBusinessAccount } from './src/types.js';
  * This plugin doesn't use traditional OAuth - it uses cookie-based auth
  * with Gemini Business accounts configured via CLI.
  */
-export const GeminiBusinessPlugin = async (ctx: any) => {
+export const GeminiBusinessPlugin = (ctx: any) => {
   return {
     auth: {
       provider: 'gemini-business',
