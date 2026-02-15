@@ -42,7 +42,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@ai-sdk/google": "^1.0.0",
+    "@ai-sdk/google": "^1.2.22",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
