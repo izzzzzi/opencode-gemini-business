@@ -346,6 +346,9 @@ function printHelp() {
   console.log('  GEMINI_USER_AGENT      - Custom user agent (optional)\n');
 }
 
+// Export CLI function
+export { cli };
+
 // Run CLI if executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
   cli().catch(error => {
