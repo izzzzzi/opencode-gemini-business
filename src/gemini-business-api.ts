@@ -193,9 +193,9 @@ export class GeminiBusinessAPI {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Cookie': this.buildCookieHeader(),
-          'X-Goog-Team-Id': this.account.team_id,
-          'X-XSRF-Token': xsrfToken,
+          'Authorization': `Bearer ${xsrfToken}`,
+          'Origin': 'https://business.gemini.google',
+          'Referer': 'https://business.gemini.google/',
           'User-Agent': this.getUserAgent(),
         },
         body: JSON.stringify(geminiRequest),
@@ -243,25 +243,43 @@ export class GeminiBusinessAPI {
     request: ChatCompletionRequest,
     sessionId: string
   ): any {
-    // Build prompt from messages
-    const prompt = this.buildPromptFromMessages(request.messages);
+    // Build query parts from messages
+    const queryParts = this.buildQueryParts(request.messages);
+
+    // Map model name to Gemini internal model ID
+    const modelId = this.mapModelId(request.model);
 
     return {
-      session_id: sessionId,
-      prompt,
-      model: request.model || 'gemini-2.5-pro',
-      stream: request.stream || false,
-      temperature: request.temperature,
-      max_tokens: request.max_tokens,
-      top_p: request.top_p,
+      configId: this.account.team_id,
+      additionalParams: { token: '-' },
+      streamAssistRequest: {
+        session: sessionId,
+        query: { parts: queryParts },
+        filter: '',
+        fileIds: [],
+        answerGenerationMode: 'NORMAL',
+        assistGenerationConfig: {
+          modelId: modelId,
+        },
+        toolsSpec: {
+          webGroundingSpec: {},
+          toolRegistry: 'default_tool_registry',
+          imageGenerationSpec: {},
+          videoGenerationSpec: {},
+        },
+        languageCode: 'en-US',
+        userMetadata: { timeZone: 'Etc/GMT' },
+        assistSkippingMode: 'REQUEST_ASSIST',
+      },
     };
   }
 
   /**
-   * Build prompt string from OpenAI messages array
+   * Build query parts from OpenAI messages array
    */
-  private buildPromptFromMessages(messages: ChatMessage[]): string {
-    return messages
+  private buildQueryParts(messages: ChatMessage[]): any[] {
+    // Combine all messages into a single text prompt
+    const fullPrompt = messages
       .map((msg) => {
         const role = msg.role === 'assistant' ? 'Assistant' : msg.role === 'system' ? 'System' : 'User';
 
@@ -277,14 +295,46 @@ export class GeminiBusinessAPI {
         }
       })
       .join('\n\n');
+
+    return [{ text: fullPrompt }];
+  }
+
+  /**
+   * Map OpenAI model names to Gemini internal model IDs
+   */
+  private mapModelId(model?: string): string {
+    const modelMap: Record<string, string> = {
+      'gemini-2.5-pro': 'gemini-3-pro-preview',
+      'gemini-2.5-flash': 'gemini-3-flash-preview',
+      'gemini-2.0-pro': 'gemini-2-pro',
+      'gemini-1.5-pro': 'gemini-1.5-pro',
+      'gemini-1.5-flash': 'gemini-1.5-flash',
+    };
+
+    return modelMap[model || 'gemini-2.5-pro'] || 'gemini-3-pro-preview';
   }
 
   /**
    * Convert Gemini Business format to OpenAI format
    */
   private convertToOpenAIFormat(data: any, model: string): ChatCompletionResponse {
-    const content = data.text || data.content || '';
-    const finishReason = data.finish_reason || 'stop';
+    // Gemini Business returns an array of response chunks
+    // We need to collect text from all chunks, ignoring "thought" parts
+    let fullText = '';
+
+    if (Array.isArray(data)) {
+      for (const chunk of data) {
+        const answer = chunk.streamAssistResponse?.answer;
+        if (!answer || !answer.replies) continue;
+
+        for (const reply of answer.replies) {
+          const content = reply.groundedContent?.content;
+          if (content && content.text && !content.thought) {
+            fullText += content.text;
+          }
+        }
+      }
+    }
 
     return {
       id: `chatcmpl-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -296,9 +346,9 @@ export class GeminiBusinessAPI {
           index: 0,
           message: {
             role: 'assistant',
-            content,
+            content: fullText.trim(),
           },
-          finish_reason: finishReason,
+          finish_reason: 'stop',
         },
       ],
       usage: {
