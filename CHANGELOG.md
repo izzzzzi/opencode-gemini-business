@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.2...v2.0.3) (2026-02-15)
+
+
+### Bug Fixes
+
+* change plugin export to synchronous function ([f578bf6](https://github.com/izzzzzi/opencode-gemini-business/commit/f578bf68d601f194552a15d690fffd96298e7581))
+
 ## [2.0.2](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.1...v2.0.2) (2026-02-15)
 
 
