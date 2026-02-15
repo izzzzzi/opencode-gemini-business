@@ -1,3 +1,10 @@
+## [2.0.4](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.3...v2.0.4) (2026-02-15)
+
+
+### Bug Fixes
+
+* initialize AccountManager outside async loader ([15864ca](https://github.com/izzzzzi/opencode-gemini-business/commit/15864ca500d4751af09db77f0d8030c8cf9ac3b8))
+
 ## [2.0.3](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.2...v2.0.3) (2026-02-15)
 
 
