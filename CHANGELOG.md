@@ -1,3 +1,42 @@
+# [2.0.0](https://github.com/izzzzzi/opencode-gemini-business/compare/v1.0.0...v2.0.0) (2026-02-15)
+
+
+### Bug Fixes
+
+* implement proper JWT authentication for Gemini Business API ([a24999a](https://github.com/izzzzzi/opencode-gemini-business/commit/a24999ac93aeb113d5ac0b788ae289e86009c66e))
+
+
+### BREAKING CHANGES
+
+* - Complete rewrite of authentication flow based on business-gemini-pool
+- Now creates JWT tokens from xsrfToken and keyId (HMAC-SHA256)
+- Fixed cookie header case sensitivity (__Secure-C_SES, __Host-C_OSES)
+- Fixed session creation with correct body format
+
+Changes:
+- Add crypto import for HMAC JWT signing
+- Implement createJWT() method for proper JWT token generation
+- Rename getXSRFToken() to getJWT() to reflect actual purpose
+- Update createSession() with correct body structure:
+  - configId (team_id)
+  - additionalParams with token placeholder
+  - createSessionRequest with session name/displayName
+- Use Authorization Bearer header instead of X-XSRF-Token
+- Fix XSRF endpoint to use GET with ?csesidx parameter
+- Handle XSS protection prefix )]}' in responses
+
+Documentation:
+- Update README examples with all supported models
+- Add comprehensive model-specific usage examples
+- Show configuration for gemini-pro, gemini-flash, gemini-2-pro, etc.
+- Update both English and Russian documentation
+
+Tested and working with real Gemini Business account! ✅
+
+Based on: https://github.com/ddcat666/business-gemini-pool
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
 # 1.0.0 (2026-02-15)
 
 
