@@ -1,6 +1,6 @@
 {
   "name": "opencode-gemini-business",
-  "version": "2.0.5",
+  "version": "2.1.0",
   "description": "OpenCode plugin for multi-account Gemini Business pool with automatic rotation",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

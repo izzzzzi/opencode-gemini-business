@@ -1,3 +1,15 @@
+# [2.1.0](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.5...v2.1.0) (2026-02-15)
+
+
+### Bug Fixes
+
+* update tests for named export and async plugin factory ([582bada](https://github.com/izzzzzi/opencode-gemini-business/commit/582badaa32aefd7cee8c39642224f06972e15b2e))
+
+
+### Features
+
+* auto-create auth record, update models and streaming ([13c5e8a](https://github.com/izzzzzi/opencode-gemini-business/commit/13c5e8a065051deadc4663757b42cbba189fcaec))
+
 ## [2.0.5](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.4...v2.0.5) (2026-02-15)
 
 
