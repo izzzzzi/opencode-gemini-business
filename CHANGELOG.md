@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.0...v2.0.1) (2026-02-15)
+
+
+### Bug Fixes
+
+* correct widgetStreamAssist request/response format ([4ce720b](https://github.com/izzzzzi/opencode-gemini-business/commit/4ce720b3a51c5812bb611877b763540cadc9c117))
+
 # [2.0.0](https://github.com/izzzzzi/opencode-gemini-business/compare/v1.0.0...v2.0.0) (2026-02-15)
 
 
