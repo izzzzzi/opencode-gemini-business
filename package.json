@@ -1,0 +1,66 @@
+{
+  "name": "opencode-gemini-business",
+  "version": "1.0.0",
+  "description": "OpenCode plugin for multi-account Gemini Business pool with automatic rotation",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "bin": {
+    "opencode-gemini-business": "./bin/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build",
+    "semantic-release": "semantic-release"
+  },
+  "keywords": [
+    "opencode",
+    "gemini",
+    "business",
+    "multi-account",
+    "pool",
+    "ai",
+    "google",
+    "gemini-api",
+    "rotation",
+    "failover",
+    "plugin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/izzzzzi/opencode-gemini-business.git"
+  },
+  "bugs": {
+    "url": "https://github.com/izzzzzi/opencode-gemini-business/issues"
+  },
+  "homepage": "https://github.com/izzzzzi/opencode-gemini-business#readme",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/google": "^1.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@types/node": "^20.0.0",
+    "semantic-release": "^23.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ]
+}
