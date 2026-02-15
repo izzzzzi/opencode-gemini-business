@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.1...v2.0.2) (2026-02-15)
+
+
+### Bug Fixes
+
+* add exports field to package.json for proper ES module resolution ([6835f96](https://github.com/izzzzzi/opencode-gemini-business/commit/6835f96252956b76b21a06ea541500c0048d1edf))
+
 ## [2.0.1](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.0...v2.0.1) (2026-02-15)
 
 
