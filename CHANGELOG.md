@@ -1,3 +1,10 @@
+## [2.0.5](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.4...v2.0.5) (2026-02-15)
+
+
+### Bug Fixes
+
+* refactor plugin structure to fix OpenCode compatibility ([c7578ee](https://github.com/izzzzzi/opencode-gemini-business/commit/c7578ee9249cf2a8647470b449275de5684284e7))
+
 ## [2.0.4](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.3...v2.0.4) (2026-02-15)
 
 
