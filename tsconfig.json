@@ -17,6 +17,6 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["src/**/*", "index.ts"],
+  "include": ["src/**/*", "index.ts", "cli.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

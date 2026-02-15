@@ -4,7 +4,7 @@
  * CLI entry point for opencode-gemini-business
  */
 
-import('../dist/index.js')
+import('../dist/cli.js')
   .then(module => {
     if (module.cli) {
       return module.cli();
