@@ -1,0 +1,47 @@
+{
+  "accounts": [
+    {
+      "id": "account-1708012345678-abc123",
+      "name": "Production Account",
+      "team_id": "team_abc123def456",
+      "cookies": {
+        "secure_c_ses": "YOUR_SECURE_C_SES_COOKIE_HERE",
+        "host_c_oses": "YOUR_HOST_C_OSES_COOKIE_HERE"
+      },
+      "csesidx": "YOUR_CSESIDX_HERE",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "enabled": true,
+      "error_count": 0,
+      "last_used": 1708012345678
+    },
+    {
+      "id": "account-1708012345679-def456",
+      "name": "Development Account",
+      "team_id": "team_def456ghi789",
+      "cookies": {
+        "secure_c_ses": "YOUR_SECURE_C_SES_COOKIE_HERE",
+        "host_c_oses": "YOUR_HOST_C_OSES_COOKIE_HERE"
+      },
+      "csesidx": "YOUR_CSESIDX_HERE",
+      "enabled": true,
+      "error_count": 0
+    },
+    {
+      "id": "account-1708012345680-ghi789",
+      "name": "Testing Account",
+      "team_id": "team_ghi789jkl012",
+      "cookies": {
+        "secure_c_ses": "YOUR_SECURE_C_SES_COOKIE_HERE",
+        "host_c_oses": "YOUR_HOST_C_OSES_COOKIE_HERE"
+      },
+      "csesidx": "YOUR_CSESIDX_HERE",
+      "enabled": true,
+      "error_count": 0
+    }
+  ],
+  "rotation_strategy": "round-robin",
+  "max_retries": 3,
+  "retry_delay": 1000,
+  "session_refresh_threshold": 300,
+  "error_threshold": 3
+}
