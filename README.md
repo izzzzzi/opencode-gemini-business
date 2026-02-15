@@ -1,30 +1,59 @@
-# opencode-gemini-business
+<div align="center">
 
-[English](README.md) | [Русский](README.ru.md)
+# 🔄 opencode-gemini-business
 
-> Multi-account Gemini Business pool with intelligent rotation for OpenCode
+**Multi-account Gemini Business pool with intelligent rotation for OpenCode**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![npm version](https://img.shields.io/npm/v/opencode-gemini-business.svg)](https://www.npmjs.com/package/opencode-gemini-business)
+[![npm version](https://img.shields.io/npm/v/opencode-gemini-business.svg?style=flat&colorA=18181B&colorB=28CF8D)](https://www.npmjs.com/package/opencode-gemini-business)
+[![npm downloads](https://img.shields.io/npm/dm/opencode-gemini-business.svg?style=flat&colorA=18181B&colorB=28CF8D)](https://www.npmjs.com/package/opencode-gemini-business)
+[![GitHub release](https://img.shields.io/github/v/release/izzzzzi/opencode-gemini-business?style=flat&colorA=18181B&colorB=28CF8D)](https://github.com/izzzzzi/opencode-gemini-business/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat&colorA=18181B&colorB=28CF8D)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat&colorA=18181B&colorB=3178C6)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-ESM-green?style=flat&colorA=18181B&colorB=339933)](https://nodejs.org/)
+
+[🇷🇺 Русский](README.ru.md) | **🇬🇧 English**
+
+<br />
+
+*Auth plugin for [OpenCode](https://github.com/anomalyco/opencode) — pool multiple Gemini Business accounts with automatic rotation, failover, and load balancing.*
+
+</div>
 
 ---
 
-## Overview
+## 📖 Overview
 
 **opencode-gemini-business** is an OpenCode plugin that enables multi-account rotation for **Gemini Business API** (`business.gemini.google`), providing automatic failover and load balancing across multiple accounts.
 
-**Important**: This plugin uses the **Gemini Business / Enterprise API**, NOT Google AI Studio.
+> **Important**: This plugin uses the **Gemini Business / Enterprise API**, NOT Google AI Studio.
 
-## Supported Models
+---
 
-| Model | Internal ID | Best For |
-|-------|------------|----------|
-| `gemini-2.5-flash` | gemini-2.5-flash | Everyday tasks, fast responses |
-| `gemini-2.5-pro` | gemini-2.5-pro | Complex reasoning |
-| `gemini-3-flash` | gemini-3-flash-preview | Next-gen fast model |
-| `gemini-3-pro` | gemini-3-pro | Next-gen reasoning |
+## ✨ Features
 
-## Quick Start
+| Feature | Description |
+|---------|-------------|
+| 🔄 **Multi-Account Rotation** | Automatically rotate between multiple Gemini Business accounts |
+| 🛡️ **Automatic Failover** | Retry failed requests with different accounts seamlessly |
+| 🔐 **JWT Authentication** | Built-in XSRF token retrieval and JWT (HS256) signing |
+| 📡 **Streaming Support** | Full SSE streaming, JSON-lines, and fallback parsing |
+| ⚙️ **Flexible Strategies** | Round-robin, least-used, or random rotation |
+| 🔑 **Auto Auth Setup** | `add-account` automatically creates OpenCode auth record |
+
+---
+
+## 🤖 Supported Models
+
+| Model | Internal API ID | Best For |
+|-------|:---------------:|---------|
+| `gemini-2.5-flash` | `gemini-2.5-flash` | Everyday tasks, fast responses |
+| `gemini-2.5-pro` | `gemini-2.5-pro` | Complex reasoning |
+| `gemini-3-flash` | `gemini-3-flash-preview` | Next-gen fast model |
+| `gemini-3-pro` | `gemini-3-pro-preview` | Next-gen reasoning |
+
+---
+
+## 🚀 Quick Start
 
 ### Step 1: Configure OpenCode
 
@@ -72,11 +101,14 @@ opencode-gemini-business add-account \
 ```
 
 Arguments:
-1. Account name
-2. `team_id` — UUID from URL `/cid/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/`
-3. `__Secure-C_SES` cookie value
-4. `__Host-C_OSES` cookie value
-5. `csesidx` — number from URL `?csesidx=...`
+
+| # | Argument | Description |
+|:-:|----------|-------------|
+| 1 | Account name | Display name for the account |
+| 2 | `team_id` | UUID from URL `/cid/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/` |
+| 3 | `__Secure-C_SES` | Cookie value (starts with `CSE.`) |
+| 4 | `__Host-C_OSES` | Cookie value (starts with `COS.`) |
+| 5 | `csesidx` | Number from URL `?csesidx=...` |
 
 Or use environment variables:
 
@@ -89,6 +121,8 @@ export GEMINI_CSESIDX="1370433092"
 
 opencode-gemini-business add-account
 ```
+
+> **Note:** `add-account` automatically creates the auth record in `~/.local/share/opencode/auth.json`, so you don't need to run `opencode auth login`.
 
 ### Step 3: Use it
 
@@ -112,7 +146,9 @@ Set as default model in `opencode.json`:
 }
 ```
 
-## Extracting Credentials
+---
+
+## 🔍 Extracting Credentials
 
 ### Where to find each value
 
@@ -137,7 +173,9 @@ https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/r/s
 1. Open DevTools (F12) → **Application** → **Cookies** → `https://business.gemini.google`
 2. Copy `__Secure-C_SES` and `__Host-C_OSES` values
 
-## Account Management
+---
+
+## 🔧 Account Management
 
 ```bash
 # List all accounts
@@ -153,7 +191,9 @@ opencode-gemini-business remove-account <account_id>
 opencode-gemini-business help
 ```
 
-## Rotation Strategies
+---
+
+## ⚙️ Rotation Strategies
 
 | Strategy | Behavior |
 |----------|----------|
@@ -163,20 +203,24 @@ opencode-gemini-business help
 
 Configure in `~/.config/opencode/gemini-business-accounts.json` (auto-created on first `add-account`).
 
-## How It Works
+---
+
+## 🛠️ How It Works
 
 1. Plugin registers as an OpenCode auth provider for `gemini-business`
 2. When a request comes in, `loader()` returns a custom `fetch()` function
 3. Custom `fetch()` intercepts the request from `@ai-sdk/openai-compatible`
 4. Instead of calling `baseURL/chat/completions`, it:
    - Picks an account via rotation strategy
-   - Gets a JWT token from XSRF endpoint
+   - Gets XSRF token and creates JWT (HS256)
    - Creates a session via `widgetCreateSession`
    - Sends the actual request to `widgetStreamAssist`
    - Converts the response back to OpenAI-compatible format
 5. Supports both streaming (SSE) and non-streaming responses
 
-## FAQ
+---
+
+## ❓ FAQ
 
 <details>
 <summary><b>Q: Where do I find team_id?</b></summary>
@@ -204,13 +248,17 @@ The plugin automatically refreshes sessions (cached for 50 minutes). If you see 
 This plugin uses **Gemini Business API** (`business.gemini.google`) — enterprise accounts with higher rate limits. NOT Google AI Studio (`aistudio.google.com`).
 </details>
 
-## Security
+---
+
+## 🔒 Security
 
 - Credentials are stored locally in `~/.config/opencode/gemini-business-accounts.json`
 - Never commit credentials to git
 - Rotate cookies regularly
 - The plugin does not send credentials to any third-party services
 
-## License
+---
 
-MIT
+## 📄 License
+
+[MIT](LICENSE) © opencode-gemini-business contributors

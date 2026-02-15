@@ -1,30 +1,59 @@
-# opencode-gemini-business
+<div align="center">
 
-[English](README.md) | [Русский](README.ru.md)
+# 🔄 opencode-gemini-business
 
-> Мульти-аккаунтный пул Gemini Business с интеллектуальной ротацией для OpenCode
+**Мульти-аккаунтный пул Gemini Business с интеллектуальной ротацией для OpenCode**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![npm version](https://img.shields.io/npm/v/opencode-gemini-business.svg)](https://www.npmjs.com/package/opencode-gemini-business)
+[![npm version](https://img.shields.io/npm/v/opencode-gemini-business.svg?style=flat&colorA=18181B&colorB=28CF8D)](https://www.npmjs.com/package/opencode-gemini-business)
+[![npm downloads](https://img.shields.io/npm/dm/opencode-gemini-business.svg?style=flat&colorA=18181B&colorB=28CF8D)](https://www.npmjs.com/package/opencode-gemini-business)
+[![GitHub release](https://img.shields.io/github/v/release/izzzzzi/opencode-gemini-business?style=flat&colorA=18181B&colorB=28CF8D)](https://github.com/izzzzzi/opencode-gemini-business/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat&colorA=18181B&colorB=28CF8D)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat&colorA=18181B&colorB=3178C6)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-ESM-green?style=flat&colorA=18181B&colorB=339933)](https://nodejs.org/)
+
+**🇷🇺 Русский** | [🇬🇧 English](README.md)
+
+<br />
+
+*Auth-плагин для [OpenCode](https://github.com/anomalyco/opencode) — пул из нескольких аккаунтов Gemini Business с автоматической ротацией, фейловером и балансировкой нагрузки.*
+
+</div>
 
 ---
 
-## Обзор
+## 📖 Обзор
 
 **opencode-gemini-business** — плагин для OpenCode, который обеспечивает ротацию между несколькими аккаунтами **Gemini Business API** (`business.gemini.google`), предоставляя автоматическое переключение при ошибках и балансировку нагрузки.
 
-**Важно**: Плагин использует **Gemini Business / Enterprise API**, НЕ Google AI Studio.
+> **Важно**: Плагин использует **Gemini Business / Enterprise API**, НЕ Google AI Studio.
 
-## Поддерживаемые модели
+---
 
-| Модель | Internal ID | Для чего |
-|--------|------------|----------|
-| `gemini-2.5-flash` | gemini-2.5-flash | Повседневные задачи, быстрые ответы |
-| `gemini-2.5-pro` | gemini-2.5-pro | Сложные рассуждения |
-| `gemini-3-flash` | gemini-3-flash-preview | Новое поколение, быстрая |
-| `gemini-3-pro` | gemini-3-pro-preview | Новое поколение, рассуждения |
+## ✨ Возможности
 
-## Быстрый старт
+| Возможность | Описание |
+|-------------|----------|
+| 🔄 **Ротация аккаунтов** | Автоматическое переключение между несколькими аккаунтами Gemini Business |
+| 🛡️ **Автоматический фейловер** | Повторные запросы с другим аккаунтом при ошибках |
+| 🔐 **JWT-аутентификация** | Встроенное получение XSRF-токена и подписание JWT (HS256) |
+| 📡 **Поддержка стриминга** | Полная поддержка SSE, JSON-lines и fallback-парсинга |
+| ⚙️ **Гибкие стратегии** | Round-robin, least-used или случайный выбор |
+| 🔑 **Автонастройка auth** | `add-account` автоматически создаёт auth-запись OpenCode |
+
+---
+
+## 🤖 Поддерживаемые модели
+
+| Модель | Internal API ID | Для чего |
+|--------|:---------------:|----------|
+| `gemini-2.5-flash` | `gemini-2.5-flash` | Повседневные задачи, быстрые ответы |
+| `gemini-2.5-pro` | `gemini-2.5-pro` | Сложные рассуждения |
+| `gemini-3-flash` | `gemini-3-flash-preview` | Новое поколение, быстрая |
+| `gemini-3-pro` | `gemini-3-pro-preview` | Новое поколение, рассуждения |
+
+---
+
+## 🚀 Быстрый старт
 
 ### Шаг 1: Настроить OpenCode
 
@@ -72,11 +101,14 @@ opencode-gemini-business add-account \
 ```
 
 Аргументы:
-1. Имя аккаунта
-2. `team_id` — UUID из URL `/cid/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/`
-3. Значение cookie `__Secure-C_SES`
-4. Значение cookie `__Host-C_OSES`
-5. `csesidx` — число из URL `?csesidx=...`
+
+| # | Аргумент | Описание |
+|:-:|----------|----------|
+| 1 | Имя аккаунта | Отображаемое имя аккаунта |
+| 2 | `team_id` | UUID из URL `/cid/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/` |
+| 3 | `__Secure-C_SES` | Значение cookie (начинается с `CSE.`) |
+| 4 | `__Host-C_OSES` | Значение cookie (начинается с `COS.`) |
+| 5 | `csesidx` | Число из URL `?csesidx=...` |
 
 Или через переменные окружения:
 
@@ -89,6 +121,8 @@ export GEMINI_CSESIDX="1370433092"
 
 opencode-gemini-business add-account
 ```
+
+> **Примечание:** `add-account` автоматически создаёт auth-запись в `~/.local/share/opencode/auth.json`, поэтому запускать `opencode auth login` не нужно.
 
 ### Шаг 3: Использовать
 
@@ -112,7 +146,9 @@ opencode run --model=gemini-business/gemini-3-pro "Сложное рассужд
 }
 ```
 
-## Извлечение учётных данных
+---
+
+## 🔍 Извлечение учётных данных
 
 ### Где найти каждое значение
 
@@ -137,7 +173,9 @@ https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/r/s
 1. Откройте DevTools (F12) → **Application** → **Cookies** → `https://business.gemini.google`
 2. Скопируйте значения `__Secure-C_SES` и `__Host-C_OSES`
 
-## Управление аккаунтами
+---
+
+## 🔧 Управление аккаунтами
 
 ```bash
 # Список аккаунтов
@@ -153,7 +191,9 @@ opencode-gemini-business remove-account <account_id>
 opencode-gemini-business help
 ```
 
-## Стратегии ротации
+---
+
+## ⚙️ Стратегии ротации
 
 | Стратегия | Поведение |
 |-----------|-----------|
@@ -163,20 +203,24 @@ opencode-gemini-business help
 
 Настраивается в `~/.config/opencode/gemini-business-accounts.json` (создаётся автоматически при первом `add-account`).
 
-## Как это работает
+---
+
+## 🛠️ Как это работает
 
 1. Плагин регистрируется как auth-провайдер `gemini-business` в OpenCode
 2. При запросе `loader()` возвращает кастомную функцию `fetch()`
 3. Кастомный `fetch()` перехватывает запрос от `@ai-sdk/openai-compatible`
 4. Вместо вызова `baseURL/chat/completions` он:
    - Выбирает аккаунт по стратегии ротации
-   - Получает JWT-токен из XSRF-эндпоинта
+   - Получает XSRF-токен и создаёт JWT (HS256)
    - Создаёт сессию через `widgetCreateSession`
    - Отправляет запрос на `widgetStreamAssist`
    - Конвертирует ответ в OpenAI-совместимый формат
 5. Поддерживает стриминг (SSE) и обычные ответы
 
-## FAQ
+---
+
+## ❓ FAQ
 
 <details>
 <summary><b>В: Где найти team_id?</b></summary>
@@ -204,13 +248,17 @@ UUID после `/cid/` — это ваш `team_id`.
 Плагин использует **Gemini Business API** (`business.gemini.google`) — корпоративные аккаунты с высокими лимитами. НЕ Google AI Studio (`aistudio.google.com`).
 </details>
 
-## Безопасность
+---
+
+## 🔒 Безопасность
 
 - Учётные данные хранятся локально в `~/.config/opencode/gemini-business-accounts.json`
 - Не коммитьте credentials в git
 - Регулярно обновляйте cookies
 - Плагин не отправляет данные третьим сторонам
 
-## Лицензия
+---
 
-MIT
+## 📄 Лицензия
+
+[MIT](LICENSE) © opencode-gemini-business contributors
