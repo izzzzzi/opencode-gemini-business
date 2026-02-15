@@ -62,9 +62,29 @@ Add to `~/.config/opencode/opencode.json`:
 {
   "plugins": ["opencode-gemini-business"],
   "models": {
-    "gemini-business": {
+    "gemini-pro": {
       "provider": "gemini-business",
       "model": "gemini-2.5-pro",
+      "rotation_strategy": "round-robin"
+    },
+    "gemini-flash": {
+      "provider": "gemini-business",
+      "model": "gemini-2.5-flash",
+      "rotation_strategy": "round-robin"
+    },
+    "gemini-2-pro": {
+      "provider": "gemini-business",
+      "model": "gemini-2.0-pro",
+      "rotation_strategy": "round-robin"
+    },
+    "gemini-1.5-pro": {
+      "provider": "gemini-business",
+      "model": "gemini-1.5-pro",
+      "rotation_strategy": "round-robin"
+    },
+    "gemini-1.5-flash": {
+      "provider": "gemini-business",
+      "model": "gemini-1.5-flash",
       "rotation_strategy": "round-robin"
     }
   }
@@ -145,22 +165,41 @@ opencode-gemini-business add-account
 ### Basic Usage
 
 ```bash
-# Use with specific model
-opencode run "Write a hello world in Python" --model=gemini-business
+# Use Pro model (best quality)
+opencode run "Analyze this codebase architecture" --model=gemini-pro
 
-# Set as default
-export OPENCODE_MODEL=gemini-business
-opencode run "Your task here"
+# Use Flash model (fastest)
+opencode run "Fix this syntax error" --model=gemini-flash
+
+# Use 2.0 Pro (largest context - 2M tokens)
+opencode run "Summarize these 100 files" --model=gemini-2-pro
 ```
 
 ### Model-Specific Usage
 
 ```bash
-# Use Pro model for complex tasks
-opencode run "Analyze this codebase architecture" --model=gemini-pro
+# Complex reasoning tasks → gemini-2.5-pro
+opencode run "Design microservices architecture" --model=gemini-pro
 
-# Use Flash model for quick tasks
-opencode run "Fix this syntax error" --model=gemini-flash
+# Quick simple tasks → gemini-2.5-flash
+opencode run "Write hello world" --model=gemini-flash
+
+# Massive context → gemini-2.0-pro (2M tokens)
+opencode run "Analyze entire codebase" --model=gemini-2-pro
+
+# Production workloads → gemini-1.5-pro
+opencode run "Review this PR" --model=gemini-1.5-pro
+
+# Cost-effective → gemini-1.5-flash
+opencode run "Generate tests" --model=gemini-1.5-flash
+```
+
+### Set Default Model
+
+```bash
+# Set your preferred model as default
+export OPENCODE_MODEL=gemini-pro
+opencode run "Your task here"
 ```
 
 ### 🛠️ Account Management

@@ -60,9 +60,29 @@ npx opencode-gemini-business@latest
 {
   "plugins": ["opencode-gemini-business"],
   "models": {
-    "gemini-business": {
+    "gemini-pro": {
       "provider": "gemini-business",
       "model": "gemini-2.5-pro",
+      "rotation_strategy": "round-robin"
+    },
+    "gemini-flash": {
+      "provider": "gemini-business",
+      "model": "gemini-2.5-flash",
+      "rotation_strategy": "round-robin"
+    },
+    "gemini-2-pro": {
+      "provider": "gemini-business",
+      "model": "gemini-2.0-pro",
+      "rotation_strategy": "round-robin"
+    },
+    "gemini-1.5-pro": {
+      "provider": "gemini-business",
+      "model": "gemini-1.5-pro",
+      "rotation_strategy": "round-robin"
+    },
+    "gemini-1.5-flash": {
+      "provider": "gemini-business",
+      "model": "gemini-1.5-flash",
       "rotation_strategy": "round-robin"
     }
   }
@@ -154,22 +174,41 @@ opencode-gemini-business add-account
 ### Базовое использование
 
 ```bash
-# Использовать с конкретной моделью
-opencode run "Напиши hello world на Python" --model=gemini-business
+# Используй Pro (лучшее качество)
+opencode run "Проанализируй архитектуру проекта" --model=gemini-pro
 
-# Установить по умолчанию
-export OPENCODE_MODEL=gemini-business
-opencode run "Ваша задача здесь"
+# Используй Flash (самая быстрая)
+opencode run "Исправь синтаксическую ошибку" --model=gemini-flash
+
+# Используй 2.0 Pro (огромный контекст - 2M токенов)
+opencode run "Суммируй эти 100 файлов" --model=gemini-2-pro
 ```
 
 ### Использование конкретных моделей
 
 ```bash
-# Использовать Pro для сложных задач
-opencode run "Проанализируй архитектуру этого проекта" --model=gemini-pro
+# Сложные задачи → gemini-2.5-pro
+opencode run "Спроектируй микросервисную архитектуру" --model=gemini-pro
 
-# Использовать Flash для быстрых задач
-opencode run "Исправь эту синтаксическую ошибку" --model=gemini-flash
+# Быстрые простые задачи → gemini-2.5-flash
+opencode run "Напиши hello world" --model=gemini-flash
+
+# Массивный контекст → gemini-2.0-pro (2M токенов)
+opencode run "Проанализируй весь codebase" --model=gemini-2-pro
+
+# Производственные нагрузки → gemini-1.5-pro
+opencode run "Ревью этого PR" --model=gemini-1.5-pro
+
+# Экономичная → gemini-1.5-flash
+opencode run "Сгенерируй тесты" --model=gemini-1.5-flash
+```
+
+### Установить модель по умолчанию
+
+```bash
+# Установи предпочитаемую модель по умолчанию
+export OPENCODE_MODEL=gemini-pro
+opencode run "Твоя задача здесь"
 ```
 
 ### 🛠️ Управление аккаунтами

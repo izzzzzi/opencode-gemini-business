@@ -8,6 +8,7 @@
  */
 
 import fetch from 'node-fetch';
+import { createHmac } from 'crypto';
 import {
   GeminiBusinessAccount,
   ChatCompletionRequest,
@@ -29,26 +30,65 @@ export class GeminiBusinessAPI {
   }
 
   /**
-   * Get XSRF token from business.gemini.google
-   * Tokens are cached for 55 minutes
+   * Create JWT token from xsrfToken and keyId
    */
-  private async getXSRFToken(): Promise<string> {
-    // Check if cached token is still valid
+  private createJWT(xsrfToken: string, keyId: string): string {
+    const now = Math.floor(Date.now() / 1000);
+
+    const header = {
+      alg: 'HS256',
+      typ: 'JWT',
+      kid: keyId,
+    };
+
+    const payload = {
+      iss: 'https://business.gemini.google',
+      aud: 'https://biz-discoveryengine.googleapis.com',
+      sub: `csesidx/${this.account.csesidx}`,
+      iat: now,
+      exp: now + 300, // 5 minutes
+      nbf: now,
+    };
+
+    // Base64url encode
+    const base64url = (str: string) =>
+      Buffer.from(str).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+    const headerB64 = base64url(JSON.stringify(header));
+    const payloadB64 = base64url(JSON.stringify(payload));
+    const message = `${headerB64}.${payloadB64}`;
+
+    // Decode xsrfToken to get key bytes
+    const padding = '='.repeat((4 - (xsrfToken.length % 4)) % 4);
+    const keyBytes = Buffer.from(xsrfToken + padding, 'base64url');
+
+    // Create HMAC signature
+    const signature = createHmac('sha256', keyBytes).update(message).digest();
+    const signatureB64 = signature.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+    return `${message}.${signatureB64}`;
+  }
+
+  /**
+   * Get JWT token (created from XSRF token)
+   * Tokens are cached for 5 minutes
+   */
+  private async getJWT(): Promise<string> {
+    // Check if cached JWT is still valid
     if (this.account.xsrf_token && this.account.xsrf_expires) {
       if (Date.now() < this.account.xsrf_expires) {
-        return this.account.xsrf_token;
+        return this.account.xsrf_token; // Actually stores JWT
       }
     }
 
     try {
-      const response = await fetch(GETOXSRF_URL, {
-        method: 'POST',
+      const url = `${GETOXSRF_URL}?csesidx=${this.account.csesidx}`;
+      const response = await fetch(url, {
+        method: 'GET',
         headers: {
           'Cookie': this.buildCookieHeader(),
           'User-Agent': this.getUserAgent(),
-          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
@@ -56,15 +96,25 @@ export class GeminiBusinessAPI {
         throw new Error(`Failed to get XSRF token: ${response.status} ${response.statusText}\n${errorText}`);
       }
 
-      const data = await response.json() as { token: string };
+      let text = await response.text();
 
-      // Cache token for 55 minutes
-      this.account.xsrf_token = data.token;
-      this.account.xsrf_expires = Date.now() + (55 * 60 * 1000);
+      // Remove XSS protection prefix )]}'
+      if (text.startsWith(")]}'\n")) {
+        text = text.substring(5);
+      }
 
-      return data.token;
+      const data = JSON.parse(text) as { xsrfToken: string; keyId: string };
+
+      // Create JWT from xsrfToken and keyId
+      const jwt = this.createJWT(data.xsrfToken, data.keyId);
+
+      // Cache JWT for 5 minutes (JWT expires in 5 minutes)
+      this.account.xsrf_token = jwt; // Store JWT in xsrf_token field
+      this.account.xsrf_expires = Date.now() + (4.5 * 60 * 1000); // 4.5 minutes to be safe
+
+      return jwt;
     } catch (error) {
-      throw new Error(`XSRF token retrieval failed: ${error}`);
+      throw new Error(`JWT retrieval failed: ${error}`);
     }
   }
 
@@ -81,21 +131,32 @@ export class GeminiBusinessAPI {
     }
 
     try {
-      const xsrfToken = await this.getXSRFToken();
+      const jwt = await this.getJWT();
+
+      // Generate random session ID
+      const sessionId = Math.random().toString(36).substring(2, 14);
+
+      const body = {
+        configId: this.account.team_id,
+        additionalParams: { token: '-' },
+        createSessionRequest: {
+          session: {
+            name: sessionId,
+            displayName: sessionId,
+          },
+        },
+      };
 
       const response = await fetch(CREATE_SESSION_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Cookie': this.buildCookieHeader(),
-          'X-Goog-Team-Id': this.account.team_id,
-          'X-XSRF-Token': xsrfToken,
+          'Authorization': `Bearer ${jwt}`,
           'User-Agent': this.getUserAgent(),
+          'Origin': 'https://business.gemini.google',
+          'Referer': 'https://business.gemini.google/',
         },
-        body: JSON.stringify({
-          team_id: this.account.team_id,
-          csesidx: this.account.csesidx,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -103,13 +164,13 @@ export class GeminiBusinessAPI {
         throw new Error(`Failed to create session: ${response.status} ${response.statusText}\n${errorText}`);
       }
 
-      const data = await response.json() as { session_id: string };
+      const data = (await response.json()) as { session: { name: string } };
 
       // Cache session for 50 minutes
-      this.account.session_id = data.session_id;
+      this.account.session_id = data.session.name;
       this.account.session_expires = Date.now() + (50 * 60 * 1000);
 
-      return data.session_id;
+      return data.session.name;
     } catch (error) {
       throw new Error(`Session creation failed: ${error}`);
     }
@@ -123,7 +184,7 @@ export class GeminiBusinessAPI {
   ): Promise<ChatCompletionResponse | AsyncIterable<ChatCompletionResponse>> {
     try {
       const sessionId = await this.createSession();
-      const xsrfToken = await this.getXSRFToken();
+      const xsrfToken = await this.getJWT();
 
       // Convert OpenAI format to Gemini Business format
       const geminiRequest = this.convertToGeminiFormat(request, sessionId);
@@ -162,7 +223,7 @@ export class GeminiBusinessAPI {
    * Build cookie header string
    */
   private buildCookieHeader(): string {
-    return `__Secure-c_ses=${this.account.cookies.secure_c_ses}; __Host-c_oses=${this.account.cookies.host_c_oses}`;
+    return `__Secure-C_SES=${this.account.cookies.secure_c_ses}; __Host-C_OSES=${this.account.cookies.host_c_oses}`;
   }
 
   /**
@@ -311,7 +372,7 @@ export class GeminiBusinessAPI {
   async testAccount(): Promise<{ success: boolean; error?: string }> {
     try {
       // Test 1: Get XSRF token
-      await this.getXSRFToken();
+      await this.getJWT();
 
       // Test 2: Create session
       await this.createSession();
