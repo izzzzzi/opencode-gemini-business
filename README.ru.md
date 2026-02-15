@@ -58,32 +58,57 @@ npx opencode-gemini-business@latest
 
 ```json
 {
-  "plugins": ["opencode-gemini-business"],
-  "models": {
-    "gemini-pro": {
-      "provider": "gemini-business",
-      "model": "gemini-2.5-pro",
-      "rotation_strategy": "round-robin"
-    },
-    "gemini-flash": {
-      "provider": "gemini-business",
-      "model": "gemini-2.5-flash",
-      "rotation_strategy": "round-robin"
-    },
-    "gemini-2-pro": {
-      "provider": "gemini-business",
-      "model": "gemini-2.0-pro",
-      "rotation_strategy": "round-robin"
-    },
-    "gemini-1.5-pro": {
-      "provider": "gemini-business",
-      "model": "gemini-1.5-pro",
-      "rotation_strategy": "round-robin"
-    },
-    "gemini-1.5-flash": {
-      "provider": "gemini-business",
-      "model": "gemini-1.5-flash",
-      "rotation_strategy": "round-robin"
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-gemini-business@latest"],
+  "provider": {
+    "gemini-business": {
+      "models": {
+        "gemini-2.5-pro": {
+          "name": "Gemini 2.5 Pro (Business)",
+          "limit": { "context": 1048576, "output": 32768 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        },
+        "gemini-2.5-flash": {
+          "name": "Gemini 2.5 Flash (Business)",
+          "limit": { "context": 1048576, "output": 8192 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        },
+        "gemini-2.0-pro": {
+          "name": "Gemini 2.0 Pro (Business)",
+          "limit": { "context": 2097152, "output": 32768 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        },
+        "gemini-1.5-pro": {
+          "name": "Gemini 1.5 Pro (Business)",
+          "limit": { "context": 2097152, "output": 8192 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        },
+        "gemini-1.5-flash": {
+          "name": "Gemini 1.5 Flash (Business)",
+          "limit": { "context": 1048576, "output": 8192 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        }
+      }
+    }
+  }
+}
+```
+
+**Или используйте короткие алиасы:**
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-gemini-business@latest"],
+  "provider": {
+    "gemini-business": {
+      "models": {
+        "gemini-2.5-pro": { "name": "Gemini 2.5 Pro" },
+        "gemini-2.5-flash": { "name": "Gemini 2.5 Flash" },
+        "gemini-2.0-pro": { "name": "Gemini 2.0 Pro" },
+        "gemini-1.5-pro": { "name": "Gemini 1.5 Pro" },
+        "gemini-1.5-flash": { "name": "Gemini 1.5 Flash" }
+      }
     }
   }
 }
@@ -239,11 +264,18 @@ opencode-gemini-business help
 
 ```json
 {
-  "models": {
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-gemini-business@latest"],
+  "provider": {
     "gemini-business": {
-      "provider": "gemini-business",
-      "model": "gemini-2.5-pro",
-      "rotation_strategy": "least-used"  // ← Измените здесь
+      "rotation_strategy": "least-used",  // ← Измените здесь
+      "models": {
+        "gemini-2.5-pro": {
+          "name": "Gemini 2.5 Pro (Business)",
+          "limit": { "context": 1048576, "output": 32768 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        }
+      }
     }
   }
 }
