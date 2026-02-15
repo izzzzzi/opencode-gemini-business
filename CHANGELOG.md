@@ -1,3 +1,18 @@
+# 1.0.0 (2026-02-15)
+
+
+### Bug Fixes
+
+* add package-lock.json and fix CLI module loading ([98cca46](https://github.com/izzzzzi/opencode-gemini-business/commit/98cca46b6cf0516db3a5abfca1f65aec23033f4c))
+* allow CI to pass with no tests ([3948e26](https://github.com/izzzzzi/opencode-gemini-business/commit/3948e264b7d924a9e6495a3c4c0c305606e72282))
+* configure npm registry in CI workflow ([a82d1d7](https://github.com/izzzzzi/opencode-gemini-business/commit/a82d1d794eee3589a446bc829ff7b702a1ec8c56))
+* update release workflow to match opencode-hashline pattern ([e1ef4fa](https://github.com/izzzzzi/opencode-gemini-business/commit/e1ef4fa50186469dd7190c9f5f66255e89fb05b5))
+
+
+### Features
+
+* initial release of opencode-gemini-business plugin ([b24c07e](https://github.com/izzzzzi/opencode-gemini-business/commit/b24c07eb6ec407dd16d8127d062ad69b1aca8fd7))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
