@@ -42,3 +42,9 @@ gemini-business-accounts.json
 *.tmp
 *.temp
 .cache/
+
+# Claude Code
+.claude/
+
+# OpenSpec
+openspec/
