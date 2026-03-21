@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.1.0...v2.2.0) (2026-03-21)
+
+
+### Features
+
+* browser-based account login, update model list, swap README lang ([d0eb82f](https://github.com/izzzzzi/opencode-gemini-business/commit/d0eb82fabf337004f330646fb1ec1af38cb87d96))
+
 # [2.1.0](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.0.5...v2.1.0) (2026-02-15)
 
 
