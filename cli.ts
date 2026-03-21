@@ -5,6 +5,7 @@ import { homedir } from 'os';
 import { join } from 'path';
 import { AccountManager } from './src/account-manager.js';
 import { GeminiBusinessAPI } from './src/gemini-business-api.js';
+import { BrowserAuth } from './src/browser-auth.js';
 import { GeminiBusinessAccount } from './src/types.js';
 
 /**
@@ -47,8 +48,54 @@ export async function cli() {
 }
 
 async function addAccountCommand(manager: AccountManager, args: string[]) {
-  console.log('Add Gemini Business Account');
-  console.log('----------------------------');
+  const isManual = args.includes('--manual');
+  const filteredArgs = args.filter(a => a !== '--manual');
+
+  if (isManual) {
+    await addAccountManual(manager, filteredArgs);
+  } else {
+    await addAccountBrowser(manager, filteredArgs[0]);
+  }
+}
+
+async function addAccountBrowser(manager: AccountManager, name?: string) {
+  console.log('Add Gemini Business Account (Browser Flow)');
+  console.log('--------------------------------------------');
+  console.log('A Chrome window will open. Sign in to your Gemini Business account.\n');
+
+  const auth = new BrowserAuth({
+    name: name || `account-${Date.now()}`,
+  });
+
+  try {
+    const credentials = await auth.captureCredentials((message) => {
+      console.log(message);
+    });
+
+    const account: Omit<GeminiBusinessAccount, 'id'> = {
+      name: name || `account-${Date.now()}`,
+      team_id: credentials.team_id,
+      cookies: credentials.cookies,
+      csesidx: credentials.csesidx,
+      user_agent: credentials.user_agent,
+      enabled: true,
+    };
+
+    const id = await manager.addAccount(account);
+    console.log(`\n✅ Account added successfully! ID: ${id}`);
+    console.log(`   Name: ${account.name}`);
+    console.log(`   Team ID: ${account.team_id}`);
+
+    await ensureAuthRecord();
+  } catch (error) {
+    console.error(`\n${error instanceof Error ? error.message : error}`);
+    process.exit(1);
+  }
+}
+
+async function addAccountManual(manager: AccountManager, args: string[]) {
+  console.log('Add Gemini Business Account (Manual)');
+  console.log('-------------------------------------');
 
   const account: Omit<GeminiBusinessAccount, 'id'> = {
     name: args[0] || process.env.GEMINI_ACCOUNT_NAME || `account-${Date.now()}`,
@@ -71,7 +118,7 @@ async function addAccountCommand(manager: AccountManager, args: string[]) {
     console.error('Error: Missing required fields!');
     console.error('\nUsage:');
     console.error(
-      '  opencode-gemini-business add-account <name> <team_id> <secure_c_ses> <host_c_oses> <csesidx> [user_agent]'
+      '  opencode-gemini-business add-account --manual <name> <team_id> <secure_c_ses> <host_c_oses> <csesidx> [user_agent]'
     );
     console.error('\nOr set environment variables:');
     console.error(
@@ -85,7 +132,6 @@ async function addAccountCommand(manager: AccountManager, args: string[]) {
   console.log(`   Name: ${account.name}`);
   console.log(`   Team ID: ${account.team_id}`);
 
-  // Auto-create auth record so user doesn't need to run `opencode auth login`
   await ensureAuthRecord();
 }
 
@@ -206,10 +252,13 @@ function printHelp() {
   console.log('================================\n');
   console.log('Multi-account Gemini Business pool with automatic rotation\n');
   console.log('Commands:');
+  console.log('  add-account [name]');
+  console.log('    Add account via browser login (default). Opens Chrome, you sign in,');
+  console.log('    credentials are captured automatically. Requires Chrome/Chromium.\n');
   console.log(
-    '  add-account <name> <team_id> <secure_c_ses> <host_c_oses> <csesidx> [user_agent]'
+    '  add-account --manual <name> <team_id> <secure_c_ses> <host_c_oses> <csesidx> [user_agent]'
   );
-  console.log('    Add a new Gemini Business account\n');
+  console.log('    Add account manually by providing credentials as arguments.\n');
   console.log('  list-accounts');
   console.log('    List all configured accounts\n');
   console.log('  remove-account <account_id>');
@@ -218,7 +267,7 @@ function printHelp() {
   console.log('    Test account credentials\n');
   console.log('  help');
   console.log('    Show this help message\n');
-  console.log('Environment Variables:');
+  console.log('Environment Variables (for --manual mode):');
   console.log('  GEMINI_ACCOUNT_NAME    - Account name');
   console.log('  GEMINI_TEAM_ID         - Team ID');
   console.log('  GEMINI_SECURE_C_SES    - __Secure-c_ses cookie');

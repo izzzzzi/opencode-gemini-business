@@ -259,7 +259,7 @@ export class GeminiBusinessAPI {
         fileIds: [],
         answerGenerationMode: 'NORMAL',
         assistGenerationConfig: {
-          modelId: modelId,
+          ...(modelId ? { modelId } : {}),
         },
         toolsSpec: {
           webGroundingSpec: {},
@@ -306,11 +306,12 @@ export class GeminiBusinessAPI {
     const modelMap: Record<string, string> = {
       'gemini-2.5-pro': 'gemini-2.5-pro',
       'gemini-2.5-flash': 'gemini-2.5-flash',
-      'gemini-3-pro': 'gemini-3-pro-preview',
       'gemini-3-flash': 'gemini-3-flash-preview',
+      'gemini-3.1-pro': 'gemini-3.1-pro-preview',
+      'auto': '',
     };
 
-    return modelMap[model || 'gemini-2.5-flash'] || model || 'gemini-2.5-flash';
+    return modelMap[model || 'gemini-2.5-flash'] ?? model ?? 'gemini-2.5-flash';
   }
 
   /**

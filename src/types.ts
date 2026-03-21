@@ -126,3 +126,28 @@ export interface ModelInfo {
   created: number;
   owned_by: string;
 }
+
+// ============================================================================
+// Browser Auth Types
+// ============================================================================
+
+export interface BrowserAuthOptions {
+  /** Overall timeout in ms (default: 600000 = 10 min) */
+  timeout?: number;
+  /** Inactivity reminder delay in ms after login detected (default: 300000 = 5 min) */
+  reminderDelay?: number;
+  /** Cookie poll interval in ms (default: 2000) */
+  pollInterval?: number;
+  /** Account name (optional, auto-generated if not provided) */
+  name?: string;
+}
+
+export interface CapturedCredentials {
+  cookies: {
+    secure_c_ses: string;
+    host_c_oses: string;
+  };
+  csesidx: string;
+  team_id: string;
+  user_agent: string;
+}

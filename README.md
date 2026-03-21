@@ -2,7 +2,7 @@
 
 # 🔄 opencode-gemini-business
 
-**Multi-account Gemini Business pool with intelligent rotation for OpenCode**
+**Мульти-аккаунтный пул Gemini Business с интеллектуальной ротацией для OpenCode**
 
 [![npm version](https://img.shields.io/npm/v/opencode-gemini-business.svg?style=flat&colorA=18181B&colorB=28CF8D)](https://www.npmjs.com/package/opencode-gemini-business)
 [![npm downloads](https://img.shields.io/npm/dm/opencode-gemini-business.svg?style=flat&colorA=18181B&colorB=28CF8D)](https://www.npmjs.com/package/opencode-gemini-business)
@@ -11,53 +11,54 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat&colorA=18181B&colorB=3178C6)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-ESM-green?style=flat&colorA=18181B&colorB=339933)](https://nodejs.org/)
 
-[🇷🇺 Русский](README.ru.md) | **🇬🇧 English**
+**🇷🇺 Русский** | [🇬🇧 English](README.en.md)
 
 <br />
 
-*Auth plugin for [OpenCode](https://github.com/anomalyco/opencode) — pool multiple Gemini Business accounts with automatic rotation, failover, and load balancing.*
+*Auth-плагин для [OpenCode](https://github.com/anomalyco/opencode) — пул из нескольких аккаунтов Gemini Business с автоматической ротацией, фейловером и балансировкой нагрузки.*
 
 </div>
 
 ---
 
-## 📖 Overview
+## 📖 Обзор
 
-**opencode-gemini-business** is an OpenCode plugin that enables multi-account rotation for **Gemini Business API** (`business.gemini.google`), providing automatic failover and load balancing across multiple accounts.
+**opencode-gemini-business** — плагин для OpenCode, который обеспечивает ротацию между несколькими аккаунтами **Gemini Business API** (`business.gemini.google`), предоставляя автоматическое переключение при ошибках и балансировку нагрузки.
 
-> **Important**: This plugin uses the **Gemini Business / Enterprise API**, NOT Google AI Studio.
-
----
-
-## ✨ Features
-
-| Feature | Description |
-|---------|-------------|
-| 🔄 **Multi-Account Rotation** | Automatically rotate between multiple Gemini Business accounts |
-| 🛡️ **Automatic Failover** | Retry failed requests with different accounts seamlessly |
-| 🔐 **JWT Authentication** | Built-in XSRF token retrieval and JWT (HS256) signing |
-| 📡 **Streaming Support** | Full SSE streaming, JSON-lines, and fallback parsing |
-| ⚙️ **Flexible Strategies** | Round-robin, least-used, or random rotation |
-| 🔑 **Auto Auth Setup** | `add-account` automatically creates OpenCode auth record |
+> **Важно**: Плагин использует **Gemini Business / Enterprise API**, НЕ Google AI Studio.
 
 ---
 
-## 🤖 Supported Models
+## ✨ Возможности
 
-| Model | Internal API ID | Best For |
-|-------|:---------------:|---------|
-| `gemini-2.5-flash` | `gemini-2.5-flash` | Everyday tasks, fast responses |
-| `gemini-2.5-pro` | `gemini-2.5-pro` | Complex reasoning |
-| `gemini-3-flash` | `gemini-3-flash-preview` | Next-gen fast model |
-| `gemini-3-pro` | `gemini-3-pro-preview` | Next-gen reasoning |
+| Возможность | Описание |
+|-------------|----------|
+| 🔄 **Ротация аккаунтов** | Автоматическое переключение между несколькими аккаунтами Gemini Business |
+| 🛡️ **Автоматический фейловер** | Повторные запросы с другим аккаунтом при ошибках |
+| 🔐 **JWT-аутентификация** | Встроенное получение XSRF-токена и подписание JWT (HS256) |
+| 📡 **Поддержка стриминга** | Полная поддержка SSE, JSON-lines и fallback-парсинга |
+| ⚙️ **Гибкие стратегии** | Round-robin, least-used или случайный выбор |
+| 🔑 **Автонастройка auth** | `add-account` автоматически создаёт auth-запись OpenCode |
 
 ---
 
-## 🚀 Quick Start
+## 🤖 Поддерживаемые модели
 
-### Step 1: Configure OpenCode
+| Модель | Internal API ID | Для чего |
+|--------|:---------------:|----------|
+| `gemini-2.5-flash` | `gemini-2.5-flash` | Повседневные задачи, быстрые ответы |
+| `gemini-2.5-pro` | `gemini-2.5-pro` | Сложные рассуждения |
+| `gemini-3-flash` | `gemini-3-flash-preview` | Новое поколение, быстрая |
+| `gemini-3.1-pro` | `gemini-3.1-pro-preview` | Продвинутые рассуждения (preview) |
+| `auto` | *(пусто)* | Gemini автоматически выберет лучшую модель |
 
-Add to `~/.config/opencode/opencode.json`:
+---
+
+## 🚀 Быстрый старт
+
+### Шаг 1: Настроить OpenCode
+
+Добавьте в `~/.config/opencode/opencode.json`:
 
 ```json
 {
@@ -74,71 +75,84 @@ Add to `~/.config/opencode/opencode.json`:
         "gemini-2.5-flash": { "name": "Gemini 2.5 Flash" },
         "gemini-2.5-pro": { "name": "Gemini 2.5 Pro" },
         "gemini-3-flash": { "name": "Gemini 3 Flash" },
-        "gemini-3-pro": { "name": "Gemini 3 Pro" }
+        "gemini-3.1-pro": { "name": "Gemini 3.1 Pro" },
+        "auto": { "name": "Авто-выбор" }
       }
     }
   }
 }
 ```
 
-### Step 2: Add Gemini Business account
+### Шаг 2: Добавить аккаунт Gemini Business
 
-Install the CLI tool:
+Установите CLI-инструмент:
 
 ```bash
 npm install -g opencode-gemini-business
 ```
 
-Then add your account:
+Добавьте аккаунт (нужен Google Chrome или Chromium):
 
 ```bash
-opencode-gemini-business add-account \
-  "My Account" \
+opencode-gemini-business add-account
+```
+
+Откроется окно Chrome — войдите в аккаунт Gemini Business и отправьте любое сообщение в чат. Куки и учётные данные будут захвачены автоматически. Готово!
+
+> **Примечание:** `add-account` автоматически создаёт auth-запись в `~/.local/share/opencode/auth.json`, поэтому запускать `opencode auth login` не нужно.
+
+<details>
+<summary>Ручной режим (для продвинутых)</summary>
+
+Если хотите указать данные вручную или Chrome не установлен:
+
+```bash
+opencode-gemini-business add-account --manual \
+  "Мой аккаунт" \
   "e1f353e7-0291-44cf-9085-e0b6efd20e41" \
   "CSE.AXUaAj_MKeqeFLr_..." \
   "COS.AfQtEyCcW1aLwKb3..." \
   "1370433092"
 ```
 
-Arguments:
+| # | Аргумент | Описание |
+|:-:|----------|----------|
+| 1 | Имя аккаунта | Отображаемое имя аккаунта |
+| 2 | `team_id` | UUID из URL `/cid/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/` |
+| 3 | `__Secure-C_SES` | Значение cookie (начинается с `CSE.`) |
+| 4 | `__Host-C_OSES` | Значение cookie (начинается с `COS.`) |
+| 5 | `csesidx` | Число из URL `?csesidx=...` |
 
-| # | Argument | Description |
-|:-:|----------|-------------|
-| 1 | Account name | Display name for the account |
-| 2 | `team_id` | UUID from URL `/cid/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/` |
-| 3 | `__Secure-C_SES` | Cookie value (starts with `CSE.`) |
-| 4 | `__Host-C_OSES` | Cookie value (starts with `COS.`) |
-| 5 | `csesidx` | Number from URL `?csesidx=...` |
-
-Or use environment variables:
+Или через переменные окружения:
 
 ```bash
-export GEMINI_ACCOUNT_NAME="My Account"
+export GEMINI_ACCOUNT_NAME="Мой аккаунт"
 export GEMINI_TEAM_ID="e1f353e7-0291-44cf-9085-e0b6efd20e41"
 export GEMINI_SECURE_C_SES="CSE.AXUaAj_MKeqeFLr_..."
 export GEMINI_HOST_C_OSES="COS.AfQtEyCcW1aLwKb3..."
 export GEMINI_CSESIDX="1370433092"
 
-opencode-gemini-business add-account
+opencode-gemini-business add-account --manual
 ```
 
-> **Note:** `add-account` automatically creates the auth record in `~/.local/share/opencode/auth.json`, so you don't need to run `opencode auth login`.
+</details>
 
-### Step 3: Use it
+### Шаг 3: Использовать
 
 ```bash
-# Flash model (fast)
-opencode run --model=gemini-business/gemini-2.5-flash "Fix this bug"
+# Flash (быстрая)
+opencode run --model=gemini-business/gemini-2.5-flash "Исправь баг"
 
-# Pro model (best quality)
-opencode run --model=gemini-business/gemini-2.5-pro "Design architecture"
+# Pro (лучшее качество)
+opencode run --model=gemini-business/gemini-2.5-pro "Спроектируй архитектуру"
 
-# Next-gen models
-opencode run --model=gemini-business/gemini-3-flash "Quick task"
-opencode run --model=gemini-business/gemini-3-pro "Complex reasoning"
+# Модели нового поколения
+opencode run --model=gemini-business/gemini-3-flash "Быстрая задача"
+opencode run --model=gemini-business/gemini-3.1-pro "Продвинутые рассуждения"
+opencode run --model=gemini-business/auto "Gemini выберет сам"
 ```
 
-Set as default model in `opencode.json`:
+Установить модель по умолчанию в `opencode.json`:
 
 ```json
 {
@@ -148,117 +162,117 @@ Set as default model in `opencode.json`:
 
 ---
 
-## 🔍 Extracting Credentials
+## 🔍 Извлечение учётных данных
 
-### Where to find each value
+### Где найти каждое значение
 
-Login to [business.gemini.google](https://business.gemini.google) and look at the URL:
+Войдите в [business.gemini.google](https://business.gemini.google) и посмотрите URL:
 
 ```
 https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/r/session/123?csesidx=1370433092
                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                  ^^^^^^^^^^
-                                        team_id (UUID after /cid/)                            csesidx
+                                        team_id (UUID после /cid/)                            csesidx
 ```
 
 ### Cookies
 
-**Method 1: Browser Extension (Recommended)**
+**Способ 1: Расширение браузера (рекомендуется)**
 
-1. Install [Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
-2. Open `business.gemini.google` and export cookies
-3. Find `__Secure-C_SES` (starts with `CSE.`) and `__Host-C_OSES` (starts with `COS.`)
+1. Установите [Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
+2. Откройте `business.gemini.google` и экспортируйте cookies
+3. Найдите `__Secure-C_SES` (начинается с `CSE.`) и `__Host-C_OSES` (начинается с `COS.`)
 
-**Method 2: DevTools**
+**Способ 2: DevTools**
 
-1. Open DevTools (F12) → **Application** → **Cookies** → `https://business.gemini.google`
-2. Copy `__Secure-C_SES` and `__Host-C_OSES` values
+1. Откройте DevTools (F12) → **Application** → **Cookies** → `https://business.gemini.google`
+2. Скопируйте значения `__Secure-C_SES` и `__Host-C_OSES`
 
 ---
 
-## 🔧 Account Management
+## 🔧 Управление аккаунтами
 
 ```bash
-# List all accounts
+# Список аккаунтов
 opencode-gemini-business list-accounts
 
-# Test account connectivity
+# Тест подключения
 opencode-gemini-business test-account <account_id>
 
-# Remove account
+# Удалить аккаунт
 opencode-gemini-business remove-account <account_id>
 
-# Help
+# Помощь
 opencode-gemini-business help
 ```
 
 ---
 
-## ⚙️ Rotation Strategies
+## ⚙️ Стратегии ротации
 
-| Strategy | Behavior |
-|----------|----------|
-| `round-robin` (default) | Cycles through accounts in order |
-| `least-used` | Selects least recently used account |
-| `random` | Random selection |
+| Стратегия | Поведение |
+|-----------|-----------|
+| `round-robin` (по умолчанию) | Циклический обход аккаунтов по порядку |
+| `least-used` | Выбор наименее недавно использованного |
+| `random` | Случайный выбор |
 
-Configure in `~/.config/opencode/gemini-business-accounts.json` (auto-created on first `add-account`).
+Настраивается в `~/.config/opencode/gemini-business-accounts.json` (создаётся автоматически при первом `add-account`).
 
 ---
 
-## 🛠️ How It Works
+## 🛠️ Как это работает
 
-1. Plugin registers as an OpenCode auth provider for `gemini-business`
-2. When a request comes in, `loader()` returns a custom `fetch()` function
-3. Custom `fetch()` intercepts the request from `@ai-sdk/openai-compatible`
-4. Instead of calling `baseURL/chat/completions`, it:
-   - Picks an account via rotation strategy
-   - Gets XSRF token and creates JWT (HS256)
-   - Creates a session via `widgetCreateSession`
-   - Sends the actual request to `widgetStreamAssist`
-   - Converts the response back to OpenAI-compatible format
-5. Supports both streaming (SSE) and non-streaming responses
+1. Плагин регистрируется как auth-провайдер `gemini-business` в OpenCode
+2. При запросе `loader()` возвращает кастомную функцию `fetch()`
+3. Кастомный `fetch()` перехватывает запрос от `@ai-sdk/openai-compatible`
+4. Вместо вызова `baseURL/chat/completions` он:
+   - Выбирает аккаунт по стратегии ротации
+   - Получает XSRF-токен и создаёт JWT (HS256)
+   - Создаёт сессию через `widgetCreateSession`
+   - Отправляет запрос на `widgetStreamAssist`
+   - Конвертирует ответ в OpenAI-совместимый формат
+5. Поддерживает стриминг (SSE) и обычные ответы
 
 ---
 
 ## ❓ FAQ
 
 <details>
-<summary><b>Q: Where do I find team_id?</b></summary>
+<summary><b>В: Где найти team_id?</b></summary>
 
-Look at the URL in your browser: `https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/...`
+Посмотрите URL в браузере: `https://business.gemini.google/home/cid/e1f353e7-0291-44cf-9085-e0b6efd20e41/...`
 
-The UUID after `/cid/` is your `team_id`.
+UUID после `/cid/` — это ваш `team_id`.
 </details>
 
 <details>
-<summary><b>Q: Do I need to run `opencode auth login`?</b></summary>
+<summary><b>В: Нужно ли запускать `opencode auth login`?</b></summary>
 
-No. The `add-account` command automatically creates the auth record in `~/.local/share/opencode/auth.json`. If for some reason it wasn't created, you can run `opencode auth login`, select **gemini-business**, and enter any key (e.g. `unused`).
+Нет. Команда `add-account` автоматически создаёт auth-запись в `~/.local/share/opencode/auth.json`. Если по какой-то причине запись не создалась, запустите `opencode auth login`, выберите **gemini-business** и введите любой ключ (например `unused`).
 </details>
 
 <details>
-<summary><b>Q: Session expired errors?</b></summary>
+<summary><b>В: Ошибки истечения сессии?</b></summary>
 
-The plugin automatically refreshes sessions (cached for 50 minutes). If you see persistent errors, your cookies may have expired — re-extract them from the browser.
+Плагин автоматически обновляет сессии (кешируются на 50 минут). Если ошибки не проходят — cookies могли истечь, извлеките их заново из браузера.
 </details>
 
 <details>
-<summary><b>Q: Difference from Google AI Studio?</b></summary>
+<summary><b>В: Чем отличается от Google AI Studio?</b></summary>
 
-This plugin uses **Gemini Business API** (`business.gemini.google`) — enterprise accounts with higher rate limits. NOT Google AI Studio (`aistudio.google.com`).
+Плагин использует **Gemini Business API** (`business.gemini.google`) — корпоративные аккаунты с высокими лимитами. НЕ Google AI Studio (`aistudio.google.com`).
 </details>
 
 ---
 
-## 🔒 Security
+## 🔒 Безопасность
 
-- Credentials are stored locally in `~/.config/opencode/gemini-business-accounts.json`
-- Never commit credentials to git
-- Rotate cookies regularly
-- The plugin does not send credentials to any third-party services
+- Учётные данные хранятся локально в `~/.config/opencode/gemini-business-accounts.json`
+- Не коммитьте credentials в git
+- Регулярно обновляйте cookies
+- Плагин не отправляет данные третьим сторонам
 
 ---
 
-## 📄 License
+## 📄 Лицензия
 
 [MIT](LICENSE) © opencode-gemini-business contributors
