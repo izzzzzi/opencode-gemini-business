@@ -60,8 +60,7 @@ export const GeminiBusinessPlugin = async (_ctx: any) => {
         }
 
         console.log(
-          `\n✅ Gemini Business: Loaded ${accounts.length} account(s)\n` +
-            `   Strategy: ${accountManager.getConfig().rotation_strategy}\n`
+          `✅ Gemini Business: ${accounts.length} account(s), ${accountManager.getConfig().rotation_strategy}`
         );
 
         return {
