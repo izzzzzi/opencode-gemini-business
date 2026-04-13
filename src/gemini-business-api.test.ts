@@ -76,3 +76,76 @@ describe('convertToGeminiFormat auto-select', () => {
     });
   });
 });
+
+// Access private method for testing
+function convertToOpenAIFormat(data: any, model: string): any {
+  const api = new GeminiBusinessAPI(mockAccount);
+  return (api as any).convertToOpenAIFormat(data, model);
+}
+
+describe('convertToOpenAIFormat', () => {
+  it('extracts text from array of stream chunks', () => {
+    const data = [
+      {
+        streamAssistResponse: {
+          answer: {
+            replies: [
+              { groundedContent: { content: { text: 'Hello', thought: false } } },
+            ],
+          },
+        },
+      },
+      {
+        streamAssistResponse: {
+          answer: {
+            replies: [
+              { groundedContent: { content: { text: ' World', thought: false } } },
+            ],
+          },
+        },
+      },
+    ];
+
+    const result = convertToOpenAIFormat(data, 'gemini-2.5-flash');
+    expect(result.choices[0].message.content).toBe('Hello World');
+  });
+
+  it('handles single object response (non-array)', () => {
+    const data = {
+      streamAssistResponse: {
+        answer: {
+          replies: [
+            { groundedContent: { content: { text: 'Single response', thought: false } } },
+          ],
+        },
+      },
+    };
+
+    const result = convertToOpenAIFormat(data, 'gemini-2.5-flash');
+    expect(result.choices[0].message.content).toBe('Single response');
+  });
+
+  it('filters out thought content', () => {
+    const data = [
+      {
+        streamAssistResponse: {
+          answer: {
+            replies: [
+              { groundedContent: { content: { text: 'thinking...', thought: true } } },
+              { groundedContent: { content: { text: 'Actual answer', thought: false } } },
+            ],
+          },
+        },
+      },
+    ];
+
+    const result = convertToOpenAIFormat(data, 'gemini-2.5-pro');
+    expect(result.choices[0].message.content).toBe('Actual answer');
+  });
+
+  it('returns empty content for unrecognized format', () => {
+    const data = { unexpected: 'format' };
+    const result = convertToOpenAIFormat(data, 'gemini-2.5-flash');
+    expect(result.choices[0].message.content).toBe('');
+  });
+});

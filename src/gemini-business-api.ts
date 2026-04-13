@@ -323,12 +323,10 @@ export class GeminiBusinessAPI {
    * Convert Gemini Business format to OpenAI format
    */
   private convertToOpenAIFormat(data: any, model: string): ChatCompletionResponse {
-    // Gemini Business returns an array of response chunks
-    // We need to collect text from all chunks, ignoring "thought" parts
     let fullText = '';
 
-    if (Array.isArray(data)) {
-      for (const chunk of data) {
+    const extractFromChunks = (chunks: any[]) => {
+      for (const chunk of chunks) {
         const answer = chunk.streamAssistResponse?.answer;
         if (!answer || !answer.replies) continue;
 
@@ -339,6 +337,12 @@ export class GeminiBusinessAPI {
           }
         }
       }
+    };
+
+    if (Array.isArray(data)) {
+      extractFromChunks(data);
+    } else if (typeof data === 'object' && data !== null) {
+      extractFromChunks([data]);
     }
 
     return {
