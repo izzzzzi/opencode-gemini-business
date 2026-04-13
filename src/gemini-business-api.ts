@@ -22,6 +22,11 @@ const CREATE_SESSION_URL = `${BASE_URL}/widgetCreateSession`;
 const STREAM_ASSIST_URL = `${BASE_URL}/widgetStreamAssist`;
 const GETOXSRF_URL = 'https://business.gemini.google/auth/getoxsrf';
 
+// Timing constants
+export const SESSION_TTL_MS = 50 * 60 * 1000;       // 50 minutes
+const JWT_CACHE_TTL_MS = 4.5 * 60 * 1000;    // 4.5 minutes (JWT expires at 5 min)
+const SESSION_REFRESH_THRESHOLD_MS = 5 * 60 * 1000; // Refresh if < 5 min remaining
+
 export class GeminiBusinessAPI {
   private account: GeminiBusinessAccount;
 
@@ -110,7 +115,7 @@ export class GeminiBusinessAPI {
 
       // Cache JWT for 5 minutes (JWT expires in 5 minutes)
       this.account.xsrf_token = jwt; // Store JWT in xsrf_token field
-      this.account.xsrf_expires = Date.now() + (4.5 * 60 * 1000); // 4.5 minutes to be safe
+      this.account.xsrf_expires = Date.now() + JWT_CACHE_TTL_MS; // 4.5 minutes to be safe
 
       return jwt;
     } catch (error) {
@@ -168,7 +173,7 @@ export class GeminiBusinessAPI {
 
       // Cache session for 50 minutes
       this.account.session_id = data.session.name;
-      this.account.session_expires = Date.now() + (50 * 60 * 1000);
+      this.account.session_expires = Date.now() + SESSION_TTL_MS;
 
       return data.session.name;
     } catch (error) {
@@ -508,7 +513,7 @@ export class GeminiBusinessAPI {
     const expiresIn = this.account.session_expires - now;
 
     // Refresh if less than 5 minutes remaining
-    return expiresIn < (5 * 60 * 1000);
+    return expiresIn < SESSION_REFRESH_THRESHOLD_MS;
   }
 
   /**

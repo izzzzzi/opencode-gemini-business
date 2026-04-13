@@ -167,18 +167,6 @@ export class AccountManager {
   }
 
   /**
-   * Check if session needs refresh
-   */
-  needsSessionRefresh(account: GeminiBusinessAccount): boolean {
-    if (!account.session_id || !account.session_expires) return true;
-
-    const now = Date.now();
-    const expiresIn = account.session_expires - now;
-
-    return expiresIn < this.config.session_refresh_threshold * 1000;
-  }
-
-  /**
    * Update account session
    */
   async updateSession(accountId: string, sessionId: string, expiresIn: number): Promise<void> {

@@ -4,7 +4,7 @@
  */
 
 import { AccountManager } from './src/account-manager.js';
-import { GeminiBusinessAPI } from './src/gemini-business-api.js';
+import { GeminiBusinessAPI, SESSION_TTL_MS } from './src/gemini-business-api.js';
 
 function isAsyncIterable<T>(value: unknown): value is AsyncIterable<T> {
   return (
@@ -85,7 +85,7 @@ export const GeminiBusinessPlugin = async (_ctx: any) => {
                   await accountManager.updateSession(
                     account.id,
                     account.session_id!,
-                    50 * 60 * 1000
+                    SESSION_TTL_MS
                   );
                 }
 
