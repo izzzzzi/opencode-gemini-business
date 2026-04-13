@@ -72,10 +72,10 @@ export class AccountManager {
   async addAccount(account: Omit<GeminiBusinessAccount, 'id'>): Promise<string> {
     const id = `account-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const newAccount: GeminiBusinessAccount = {
-      enabled: true,
       error_count: 0,
       ...account,
       id,
+      enabled: account.enabled !== undefined ? account.enabled : true,
     };
 
     this.config.accounts.push(newAccount);
