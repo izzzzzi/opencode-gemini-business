@@ -18,7 +18,12 @@ export interface GeminiBusinessAccount {
   user_agent?: string;
 
   // Session management (Gemini Business uses sessions, not JWT)
+  cached_jwt?: string;
+  cached_jwt_expires?: number;
+
+  /** @deprecated Use cached_jwt — kept for config migration */
   xsrf_token?: string;
+  /** @deprecated Use cached_jwt_expires — kept for config migration */
   xsrf_expires?: number;
   session_id?: string;
   session_expires?: number;

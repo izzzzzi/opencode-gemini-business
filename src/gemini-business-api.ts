@@ -80,9 +80,9 @@ export class GeminiBusinessAPI {
    */
   private async getJWT(): Promise<string> {
     // Check if cached JWT is still valid
-    if (this.account.xsrf_token && this.account.xsrf_expires) {
-      if (Date.now() < this.account.xsrf_expires) {
-        return this.account.xsrf_token; // Actually stores JWT
+    if (this.account.cached_jwt && this.account.cached_jwt_expires) {
+      if (Date.now() < this.account.cached_jwt_expires) {
+        return this.account.cached_jwt;
       }
     }
 
@@ -113,9 +113,9 @@ export class GeminiBusinessAPI {
       // Create JWT from xsrfToken and keyId
       const jwt = this.createJWT(data.xsrfToken, data.keyId);
 
-      // Cache JWT for 5 minutes (JWT expires in 5 minutes)
-      this.account.xsrf_token = jwt; // Store JWT in xsrf_token field
-      this.account.xsrf_expires = Date.now() + JWT_CACHE_TTL_MS; // 4.5 minutes to be safe
+      // Cache JWT for 4.5 minutes (JWT expires in 5 minutes)
+      this.account.cached_jwt = jwt;
+      this.account.cached_jwt_expires = Date.now() + JWT_CACHE_TTL_MS;
 
       return jwt;
     } catch (error) {

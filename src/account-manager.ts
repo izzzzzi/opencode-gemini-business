@@ -43,6 +43,16 @@ export class AccountManager {
       const saved = JSON.parse(data) as PoolConfig;
       this.config.accounts = saved.accounts || [];
 
+      // Migrate deprecated xsrf_token → cached_jwt
+      for (const account of this.config.accounts) {
+        if (account.xsrf_token && !account.cached_jwt) {
+          account.cached_jwt = account.xsrf_token;
+          account.cached_jwt_expires = account.xsrf_expires;
+          delete account.xsrf_token;
+          delete account.xsrf_expires;
+        }
+      }
+
       if (saved.rotation_strategy) this.config.rotation_strategy = saved.rotation_strategy;
       if (saved.max_retries !== undefined) this.config.max_retries = saved.max_retries;
 
