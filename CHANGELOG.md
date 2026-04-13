@@ -1,3 +1,22 @@
+# [2.3.0](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.2.0...v2.3.0) (2026-04-13)
+
+
+### Bug Fixes
+
+* add write mutex to prevent concurrent file corruption ([68293bc](https://github.com/izzzzzi/opencode-gemini-business/commit/68293bc6603f2203b2eb0618626210033f2677d1))
+* correct error attribution, add retry loop, fix toSSEStream handling ([fab33f2](https://github.com/izzzzzi/opencode-gemini-business/commit/fab33f2f30af74886d3ada37f2b994561f60e23c))
+* handle non-array responses in convertToOpenAIFormat, add tests ([1d3e09c](https://github.com/izzzzzi/opencode-gemini-business/commit/1d3e09c6e9e25b501206ea75220fe5d513063dde))
+* persist account state when error threshold disables an account ([279ac37](https://github.com/izzzzzi/opencode-gemini-business/commit/279ac375acf071c87164d48102a588a2dc8628f8))
+* reduce console noise in plugin loader and fetch handler ([a6b6747](https://github.com/izzzzzi/opencode-gemini-business/commit/a6b6747a890a941edd049fc80c1908ae6e865004))
+* replace deprecated substr, use async access instead of existsSync ([6add790](https://github.com/izzzzzi/opencode-gemini-business/commit/6add7906a0e7176a01619c5aa372a36be3bf90e6))
+* resolve TS2783 duplicate key error in addAccount spread ([14857b7](https://github.com/izzzzzi/opencode-gemini-business/commit/14857b73117ac1fc3ddd8cba291065309fd99ef0))
+* surface write errors to callers while keeping queue resilient ([6d05ce9](https://github.com/izzzzzi/opencode-gemini-business/commit/6d05ce9edc1dba79bfd5561849a4018758281504))
+
+
+### Features
+
+* add --version flag, warn about credentials in shell history ([0a62ada](https://github.com/izzzzzi/opencode-gemini-business/commit/0a62ada588832a7b6975752ad51e187e43a16b7a))
+
 # [2.2.0](https://github.com/izzzzzi/opencode-gemini-business/compare/v2.1.0...v2.2.0) (2026-03-21)
 
 
