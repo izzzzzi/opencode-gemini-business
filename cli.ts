@@ -40,6 +40,12 @@ export async function cli() {
       await testAccountCommand(accountManager, args[1]);
       break;
 
+    case 'version':
+    case '--version':
+    case '-v':
+      await printVersion();
+      break;
+
     case 'help':
     default:
       printHelp();
@@ -247,6 +253,16 @@ async function testAccountCommand(manager: AccountManager, accountId: string) {
   }
 }
 
+async function printVersion() {
+  try {
+    const pkgPath = new URL('./package.json', import.meta.url).pathname;
+    const pkg = JSON.parse(await readFile(pkgPath, 'utf-8'));
+    console.log(`opencode-gemini-business v${pkg.version}`);
+  } catch {
+    console.log('opencode-gemini-business (version unknown)');
+  }
+}
+
 function printHelp() {
   console.log('OpenCode Gemini Business Plugin');
   console.log('================================\n');
@@ -259,6 +275,8 @@ function printHelp() {
     '  add-account --manual <name> <team_id> <secure_c_ses> <host_c_oses> <csesidx> [user_agent]'
   );
   console.log('    Add account manually by providing credentials as arguments.\n');
+  console.log('  ⚠️  Warning: Passing credentials as arguments exposes them in shell history.');
+  console.log('     Prefer environment variables or browser-based login.\n');
   console.log('  list-accounts');
   console.log('    List all configured accounts\n');
   console.log('  remove-account <account_id>');
@@ -267,6 +285,8 @@ function printHelp() {
   console.log('    Test account credentials\n');
   console.log('  help');
   console.log('    Show this help message\n');
+  console.log('  version (or --version, -v)');
+  console.log('    Show installed version\n');
   console.log('Environment Variables (for --manual mode):');
   console.log('  GEMINI_ACCOUNT_NAME    - Account name');
   console.log('  GEMINI_TEAM_ID         - Team ID');
