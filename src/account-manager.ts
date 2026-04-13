@@ -13,6 +13,7 @@ const ACCOUNTS_FILE = join(CONFIG_DIR, 'gemini-business-accounts.json');
 export class AccountManager {
   private config: PoolConfig;
   private currentIndex: number = 0;
+  private writeQueue: Promise<void> = Promise.resolve();
 
   constructor(config?: Partial<PoolConfig>) {
     this.config = {
@@ -53,14 +54,18 @@ export class AccountManager {
   }
 
   /**
-   * Save accounts to config file
+   * Save accounts to config file (queued to prevent concurrent writes)
    */
   async saveAccounts(): Promise<void> {
+    this.writeQueue = this.writeQueue.then(() => this.writeToDisk()).catch(() => {});
+    return this.writeQueue;
+  }
+
+  private async writeToDisk(): Promise<void> {
     try {
       await mkdir(CONFIG_DIR, { recursive: true });
       const data = JSON.stringify(this.config, null, 2);
       await writeFile(ACCOUNTS_FILE, data, 'utf-8');
-      console.log(`Saved ${this.config.accounts.length} accounts to ${ACCOUNTS_FILE}`);
     } catch (error) {
       console.error('Failed to save accounts:', error);
       throw new Error(`Failed to save accounts: ${error}`);

@@ -35,6 +35,9 @@ describe('AccountManager', () => {
       manager.markAccountError(id, 'fail 2');
       manager.markAccountError(id, 'fail 3');
 
+      // Allow the async write queue microtasks to flush
+      await new Promise<void>(resolve => setImmediate(resolve));
+
       // Should have triggered saveAccounts on the 3rd error
       expect(writeFile).toHaveBeenCalled();
     });
