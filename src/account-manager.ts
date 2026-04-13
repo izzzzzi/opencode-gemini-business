@@ -72,10 +72,10 @@ export class AccountManager {
   async addAccount(account: Omit<GeminiBusinessAccount, 'id'>): Promise<string> {
     const id = `account-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const newAccount: GeminiBusinessAccount = {
-      ...account,
-      id,
       enabled: true,
       error_count: 0,
+      ...account,
+      id,
     };
 
     this.config.accounts.push(newAccount);
@@ -145,10 +145,13 @@ export class AccountManager {
     account.error_count = (account.error_count || 0) + 1;
     account.last_error = error;
 
-    // Disable account if error threshold reached
     if (account.error_count >= this.config.error_threshold) {
       account.enabled = false;
       console.warn(`Account ${account.name} (${accountId}) disabled after ${account.error_count} errors`);
+      // Persist the disabled state so it survives restart
+      this.saveAccounts().catch((err) =>
+        console.error('Failed to persist account state:', err)
+      );
     }
   }
 
