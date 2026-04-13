@@ -1,32 +1,20 @@
 {
-  "plugins": [
-    "opencode-gemini-business@latest"
-  ],
-  "models": {
-    "gemini-pro": {
-      "provider": "opencode-gemini-business",
-      "model": "gemini-2.5-pro",
-      "temperature": 0.7,
-      "max_tokens": 8192
-    },
-    "gemini-flash": {
-      "provider": "opencode-gemini-business",
-      "model": "gemini-2.5-flash",
-      "temperature": 0.3,
-      "max_tokens": 4096
-    },
-    "gemini-3.1-pro": {
-      "provider": "opencode-gemini-business",
-      "model": "gemini-3.1-pro",
-      "temperature": 0.7,
-      "max_tokens": 16384
-    },
-    "gemini-auto": {
-      "provider": "opencode-gemini-business",
-      "model": "auto",
-      "temperature": 0.5,
-      "max_tokens": 8192
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-gemini-business@latest"],
+  "provider": {
+    "gemini-business": {
+      "name": "Gemini Business",
+      "options": {
+        "baseURL": "https://business.gemini.google/v1",
+        "apiKey": "unused"
+      },
+      "models": {
+        "gemini-2.5-flash": { "name": "Gemini 2.5 Flash" },
+        "gemini-2.5-pro": { "name": "Gemini 2.5 Pro" },
+        "gemini-3-flash": { "name": "Gemini 3 Flash" },
+        "gemini-3.1-pro": { "name": "Gemini 3.1 Pro" },
+        "auto": { "name": "Auto-select" }
+      }
     }
-  },
-  "defaultModel": "gemini-pro"
+  }
 }
