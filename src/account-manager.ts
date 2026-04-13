@@ -196,14 +196,14 @@ export class AccountManager {
   }
 
   /**
-   * Update XSRF token
+   * Update cached JWT token
    */
-  async updateXSRFToken(accountId: string, token: string, expiresIn: number): Promise<void> {
+  async updateCachedJWT(accountId: string, token: string, expiresIn: number): Promise<void> {
     const account = this.config.accounts.find(acc => acc.id === accountId);
     if (!account) return;
 
-    account.xsrf_token = token;
-    account.xsrf_expires = Date.now() + expiresIn;
+    account.cached_jwt = token;
+    account.cached_jwt_expires = Date.now() + expiresIn;
     await this.saveAccounts();
   }
 
