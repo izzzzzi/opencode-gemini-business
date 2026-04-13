@@ -1,5 +1,7 @@
 # 🔍 Research Report: Gemini Business Integration Analysis
 
+> **Note (2026-04-13):** The critical issues described below (wrong endpoints, wrong architecture, auth flow mismatch, API format mismatch) were all resolved in v2.0.0. The current codebase implements direct Gemini Business API integration with correct endpoints. This document is kept for historical reference.
+
 ## 📊 Similar Projects Found
 
 | Project | ⭐ Stars | Language | Description |
