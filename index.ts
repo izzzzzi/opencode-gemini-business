@@ -28,11 +28,10 @@ function toSSEStream(
           );
         }
         controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+        controller.close();
       } catch (error) {
         controller.error(error);
-        return;
       }
-      controller.close();
     },
   });
 }
@@ -69,65 +68,73 @@ export const GeminiBusinessPlugin = async (_ctx: any) => {
           apiKey: '',
 
           async fetch(_input: any, init: any): Promise<any> {
-            try {
+            const config = accountManager.getConfig();
+            let lastError: Error | null = null;
+
+            for (let attempt = 0; attempt < config.max_retries; attempt++) {
               const account = accountManager.getNextAccount();
               if (!account) {
                 throw new Error('No available accounts');
               }
 
-              const api = new GeminiBusinessAPI(account);
+              try {
+                const api = new GeminiBusinessAPI(account);
 
-              if (api.needsSessionRefresh()) {
-                console.log(`   ⟳ Refreshing session for: ${account.name}`);
-                await api.refreshSession();
-                await accountManager.updateSession(
-                  account.id,
-                  account.session_id!,
-                  50 * 60 * 1000
-                );
-              }
-
-              const requestBody = init?.body
-                ? JSON.parse(init.body as string)
-                : {};
-              const response = await api.chatCompletion(requestBody);
-
-              accountManager.resetAccountErrors(account.id);
-
-              if (requestBody.stream) {
-                if (!isAsyncIterable(response)) {
-                  throw new Error(
-                    'Provider returned non-stream response for stream request'
+                if (api.needsSessionRefresh()) {
+                  await api.refreshSession();
+                  await accountManager.updateSession(
+                    account.id,
+                    account.session_id!,
+                    50 * 60 * 1000
                   );
                 }
 
-                return new Response(toSSEStream(response), {
+                const requestBody = init?.body
+                  ? JSON.parse(init.body as string)
+                  : {};
+                const response = await api.chatCompletion(requestBody);
+
+                accountManager.resetAccountErrors(account.id);
+
+                if (requestBody.stream) {
+                  if (!isAsyncIterable(response)) {
+                    throw new Error(
+                      'Provider returned non-stream response for stream request'
+                    );
+                  }
+
+                  return new Response(toSSEStream(response), {
+                    status: 200,
+                    headers: {
+                      'Content-Type': 'text/event-stream; charset=utf-8',
+                      'Cache-Control': 'no-cache',
+                      Connection: 'keep-alive',
+                    },
+                  });
+                }
+
+                return new Response(JSON.stringify(response), {
                   status: 200,
                   headers: {
-                    'Content-Type': 'text/event-stream; charset=utf-8',
-                    'Cache-Control': 'no-cache',
-                    Connection: 'keep-alive',
+                    'Content-Type': 'application/json',
                   },
                 });
-              }
+              } catch (error) {
+                const errorMessage =
+                  error instanceof Error ? error.message : String(error);
 
-              return new Response(JSON.stringify(response), {
-                status: 200,
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              });
-            } catch (error) {
-              const errorMessage =
-                error instanceof Error ? error.message : String(error);
-
-              const account = accountManager.getNextAccount();
-              if (account) {
                 accountManager.markAccountError(account.id, errorMessage);
-              }
+                lastError = error instanceof Error ? error : new Error(errorMessage);
 
-              throw new Error(`Gemini Business API Error: ${errorMessage}`);
+                if (attempt < config.max_retries - 1) {
+                  await new Promise((r) => setTimeout(r, config.retry_delay));
+                }
+              }
             }
+
+            throw new Error(
+              `Gemini Business API Error after ${config.max_retries} attempts: ${lastError?.message}`
+            );
           },
         };
       },
