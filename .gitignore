@@ -48,3 +48,6 @@ gemini-business-accounts.json
 
 # OpenSpec
 openspec/
+
+# Superpowers specs/plans (internal dev docs)
+docs/superpowers/
