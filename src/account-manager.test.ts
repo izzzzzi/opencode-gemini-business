@@ -9,9 +9,6 @@ vi.mock('fs/promises', () => ({
   mkdir: vi.fn().mockResolvedValue(undefined),
   access: vi.fn(),
 }));
-vi.mock('fs', () => ({
-  existsSync: vi.fn().mockReturnValue(false),
-}));
 
 describe('AccountManager', () => {
   let manager: AccountManager;

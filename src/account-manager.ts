@@ -3,8 +3,7 @@
  */
 
 import { GeminiBusinessAccount, PoolConfig } from './types.js';
-import { readFile, writeFile } from 'fs/promises';
-import { existsSync } from 'fs';
+import { readFile, writeFile, access, mkdir } from 'fs/promises';
 import { homedir } from 'os';
 import { join } from 'path';
 
@@ -31,7 +30,9 @@ export class AccountManager {
    * Load accounts from config file
    */
   async loadAccounts(): Promise<void> {
-    if (!existsSync(ACCOUNTS_FILE)) {
+    try {
+      await access(ACCOUNTS_FILE);
+    } catch {
       console.warn(`No accounts file found at ${ACCOUNTS_FILE}`);
       return;
     }
@@ -41,7 +42,6 @@ export class AccountManager {
       const saved = JSON.parse(data) as PoolConfig;
       this.config.accounts = saved.accounts || [];
 
-      // Merge other config options if they exist
       if (saved.rotation_strategy) this.config.rotation_strategy = saved.rotation_strategy;
       if (saved.max_retries !== undefined) this.config.max_retries = saved.max_retries;
 
@@ -57,6 +57,7 @@ export class AccountManager {
    */
   async saveAccounts(): Promise<void> {
     try {
+      await mkdir(CONFIG_DIR, { recursive: true });
       const data = JSON.stringify(this.config, null, 2);
       await writeFile(ACCOUNTS_FILE, data, 'utf-8');
       console.log(`Saved ${this.config.accounts.length} accounts to ${ACCOUNTS_FILE}`);
@@ -70,7 +71,7 @@ export class AccountManager {
    * Add a new account
    */
   async addAccount(account: Omit<GeminiBusinessAccount, 'id'>): Promise<string> {
-    const id = `account-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const id = `account-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     const newAccount: GeminiBusinessAccount = {
       error_count: 0,
       ...account,
