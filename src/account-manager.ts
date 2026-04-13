@@ -57,8 +57,9 @@ export class AccountManager {
    * Save accounts to config file (queued to prevent concurrent writes)
    */
   async saveAccounts(): Promise<void> {
-    this.writeQueue = this.writeQueue.then(() => this.writeToDisk()).catch(() => {});
-    return this.writeQueue;
+    const op = this.writeQueue.then(() => this.writeToDisk());
+    this.writeQueue = op.catch(() => {}); // queue stays healthy
+    return op; // caller sees the real result
   }
 
   private async writeToDisk(): Promise<void> {
